@@ -24,3 +24,32 @@
 # in order to get an idea of common or good or useful combinations of systems
 
 # bars on yelp
+
+
+def collaborativeFiltering():
+    pass
+
+
+def menu():
+    print('''
+What would you like to do?
+
+1. Something
+2. Another thing
+    ''')
+    check = False
+    while not check:
+        choice = input('Your choice > ')
+        try:
+            choice = int(choice)
+            if 1 <= choice <= 2:
+                check = True
+        except:
+            pass
+    return choice
+
+
+if __name__ == '__main__':
+    print('Welcome to the hybrid recommender system using the Yelp dataset!')
+    choice = menu()
+    print(choice)
