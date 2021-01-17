@@ -4,3 +4,12 @@ yelp_photos
 covid_19_dataset.tgz
 yelp_dataset.tgz
 yelp_photos.tar
+paper/conference*
+paper/IEEE*
+paper/fig1.png
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+paper/README
