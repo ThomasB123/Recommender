@@ -26,28 +26,44 @@ thomas.butterfield@durham.ac.uk}
 \section{Introduction}
 
 \subsection{Domain of application}
-This application is a hybrid recommender system using the Yelp dataset.
+The domain of this application is a recommender system for bars, using the Yelp dataset.
+Decide whether I want to define the time-span for the date, 
+depends on if there is too much data from all available time period.
+I am also taking into accounts Covid-19 data when generating recommendations.
 
 \subsection{Related work review}
 Some related work
 
 \subsection{Purpose/Aim}
-The purpose and aim
+The purpose of this application is to give suitable suggestions for a user to go to.
+Using information about the user such as their location and personal preferences.
 
 
 \section{Methods}
 
 \subsection{Data description}
-Description of data
+The data I am using is taken from the Yelp dataset,
+it includes user reviews of different businesses and services in a specific location.
+These user reviews include ratings, text feedback, and other such information.
 
-\subsection{Data preparation and future selection}
+\subsection{Data preparation and feature selection}
 Prepare data
+The entire Yelp dataset is huge and much of it is not neccessary for my domain of bars.
+As such I prepared the data by eliminating any data not relevant to my domain.
+I selected features such as user ratings and a particular user's average rating,
+since if a user typically rates places they go highly, but rates a particular bar low,
+this is more significant than a user who always rates places low.
 
 \subsection{Hybrid scheme}
 Which two algorithms
+A hybrid scheme is a good way to design a recommender system, since you can get the
+best of both algorithms if done properly.
+Meaning better recommendations than either algorithm could achieve individually.
 
 \subsection{Recommendation techniques/algorithms}
-What techniques
+The first recommender system is collaborative filtering.
+I am using a weighted mixed combination of these two systems in order to produce the results
+of my hybrid recommender system.
 
 \subsection{Evaluation methods}
 How to evaluate
@@ -56,13 +72,18 @@ How to evaluate
 \section{Implementation}
 
 \subsection{Input interface}
-What is the input interface
+The input interface is the command line.
+The program offers users opportunites to input information about themselves,
+as well as make choices from a selection of items which the system provides or suggests.
 
 \subsection{Recommendation algorithm}
 What algorithm
 
 \subsection{Output interface}
-What is the output interface
+The output interface is the command line.
+The system can output recommendations for bars which the user might like,
+as well as information about how the system works and why certain suggestions were made,
+at the user's request.
 
 
 \section{Evaluation results}
