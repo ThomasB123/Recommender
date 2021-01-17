@@ -78,9 +78,14 @@ q. Quit
                 exit()
     return choice
 
+def welcome():
+    print('Welcome to the hybrid recommender system using the Yelp dataset!')
+    print()
+
 
 if __name__ == '__main__':
-    print('Welcome to the hybrid recommender system using the Yelp dataset!')
+    welcome()
+    
     while True:
         choice = menu()
         if choice == 1:
