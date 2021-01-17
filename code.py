@@ -30,26 +30,62 @@ def collaborativeFiltering():
     pass
 
 
+def getRecommendations():
+    pass
+
+def getPreferences():
+    pass
+
+
+
+def info():
+    print('''
+Which data do we collect from you?
+
+    We collect your choices.
+
+How is it collected?
+
+    From the choices you input here.
+
+For what purpose?
+
+    In order for us to suggest things you might like.
+
+    ''')
+    input('Press enter to return ')
+
+
 def menu():
     print('''
 What would you like to do?
 
-1. Something
-2. Another thing
+1. Get recommendations
+2. Give preferences
+3. Information
+q. Quit
     ''')
     check = False
     while not check:
         choice = input('Your choice > ')
         try:
             choice = int(choice)
-            if 1 <= choice <= 2:
+            if 1 <= choice <= 3:
                 check = True
         except:
-            pass
+            if choice == 'q' or choice == 'Q':
+                print('Goodbye.')
+                exit()
     return choice
 
 
 if __name__ == '__main__':
     print('Welcome to the hybrid recommender system using the Yelp dataset!')
-    choice = menu()
-    print(choice)
+    while True:
+        choice = menu()
+        if choice == 1:
+            pass
+        elif choice == 2:
+            pass
+        elif choice == 3:
+            info()
