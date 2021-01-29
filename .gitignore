@@ -8,6 +8,8 @@ paper/conference*
 paper/IEEE*
 paper/fig1.png
 *.aux
+*.bbl
+*.blg
 *.fdb_latexmk
 *.fls
 *.log

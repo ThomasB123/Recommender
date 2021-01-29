@@ -82,9 +82,32 @@ def welcome():
     print('Welcome to the hybrid recommender system using the Yelp dataset!')
     print()
 
+def whichCity():
+    cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte','Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
+    question = '''
+Which city are you closest to?
+    '''
+    for i in range(len(cities)):
+        question += '''
+{}. {}'''.format(i+1,cities[i])
+    print(question)
+    print()
+    check = False
+    while not check:
+        choice = input('Your choice > ')
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(cities):
+                check = True
+        except:
+            pass
+    return cities[choice-1]
+
 
 if __name__ == '__main__':
     welcome()
+    city = whichCity()
+    print(city)
     
     while True:
         choice = menu()
@@ -94,3 +117,15 @@ if __name__ == '__main__':
             pass
         elif choice == 3:
             info()
+
+# Resources:
+'''
+https://www.yelp.com/dataset
+https://www.yelp.com/dataset/documentation/faq
+https://www.yelp-support.com/Recommended_Reviews
+https://github.com/Yelp/dataset-examples/blob/master/json_to_csv_converter.py
+https://towardsdatascience.com/converting-yelp-dataset-to-csv-using-pandas-2a4c8f03bd88
+https://www.kaggle.com/yelp-dataset/yelp-dataset?select=yelp_academic_dataset_business.json
+https://github.com/Yelp/dataset-examples/issues/43
+https://surpriselib.com/
+'''

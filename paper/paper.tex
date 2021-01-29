@@ -44,11 +44,14 @@ Using information about the user such as their location and personal preferences
 \subsection{Data description}
 The data I am using is taken from the Yelp dataset,
 it includes user reviews of different businesses and services in a specific location.
+There are 10 cities included in the dataset: Montreal, Calgary, Toronto, Pittsburgh, Charlotte, 
+Urbana-Champaign, Phoenix, Las Vegas, Madison, and Cleveland. 
 These user reviews include ratings, text feedback, and other such information.
 
 \subsection{Data preparation and feature selection}
 Prepare data
-The entire Yelp dataset is huge and much of it is not neccessary for my domain of bars.
+Of the 209,393 businesses in the dataset, 168,903 are still open.
+The entire Yelp dataset is huge and much of it is not necessary for my domain of bars.
 As such I prepared the data by eliminating any data not relevant to my domain.
 I selected features such as user ratings and a particular user's average rating,
 since if a user typically rates places they go highly, but rates a particular bar low,
@@ -104,19 +107,11 @@ People's personal data
 What can it not do?
 
 \subsection{Further developments}
-What could I do in the future
+What could I do in the future \cite{5284958}. 
 
 
-\begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-\end{thebibliography}
-\vspace{12pt}
-\color{red}
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,references}
+
 
 \end{document}
