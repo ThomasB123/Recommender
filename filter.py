@@ -29,15 +29,16 @@ df_b = df_b.drop(drop_columns, axis=1)
 
 business_restaurant = df_b[df_b['categories'].str.contains('Restaurants',case=False,na=False)]
 
-df_explode = df_b.assign(categories = df_b.categories.str.split(', ')).explode('categories')
+#df_explode = df_b.assign(categories = df_b.categories.str.split(', ')).explode('categories')
 
-print(df_explode.categories.value_counts())
+#print(df_explode.categories.value_counts())
 
-print(df_explode[df_explode['categories'].str.contains('Restaurants',case=True,na=False)].categories.value_counts())
+#print(df_explode[df_explode['categories'].str.contains('Restaurants',case=True,na=False)].categories.value_counts())
 
 csv_name = 'processedData/business_restaurants.csv'
 business_restaurant.to_csv(csv_name, index=False)
 
+# make dictionary of business IDs for restaurants only and filter tips,reviews, checkins for only those businesses
 
 # filter by time
 # get number of reviews in last year?
