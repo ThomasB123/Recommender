@@ -1,6 +1,5 @@
-covid_19_dataset_2020_06_10
-yelp_dataset
-yelp_photos
+dataset
+photos
 covid_19_dataset.tgz
 covid_dataset
 yelp_dataset.tgz
@@ -16,3 +15,4 @@ paper/fig1.png
 *.log
 *.synctex.gz
 paper/README
+processed
