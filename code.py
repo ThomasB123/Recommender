@@ -25,6 +25,7 @@
 
 # bars on yelp
 
+import json
 
 def collaborativeFiltering():
     pass
@@ -103,9 +104,23 @@ Which city are you closest to?
             pass
     return cities[choice-1]
 
+def getName():
+    count = 0
+    name = ''
+    while name == '':
+        name = input('What is your name? > ').strip()
+    users = open('dataset/user.json','r')
+    for line in users:
+        user = json.loads(line)
+        if user['name'] == name:
+            #print(user['user_id'])
+            count += 1
+    print(count)
+
 
 if __name__ == '__main__':
     welcome()
+    getName()
     city = whichCity()
     print(city)
     

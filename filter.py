@@ -1,5 +1,4 @@
 
-import os
 import json
 import pandas as pd
 
@@ -8,7 +7,6 @@ def getIDs():
     inFile = open('dataset/business.json','r')
     outFile = open('processed/business_ids.json','w')
     ids = {}
-    count = 0
     for line in inFile:
         business = json.loads(line)
         ID = business['business_id']
@@ -40,25 +38,33 @@ def toCSV():
         panda = pd.read_json('processed/'+fileName+'.json', lines=True)
         panda.to_csv('processed/'+fileName+'.csv',index=False)
 
+def covidDuplicates():
+    inFile = open('processed/covid_features.json')
+    duplicates = ['D35unF350QG06LXDe0Cv-Q','nLGgJBtMfGv7_juXipXheA','b5uCtk5iUcdeSWBNAx40Ug','l3joBBpkq0ib11dKUpKMAw','4v0aj1VWtNwvzOeQ2Ohzrg','BpL-s3p572cxNdXJAsahpA','ZBfoUKOkfocsYK6TFQpwaA','s2Fv9gzUnnpfnkUTAMSK7w']
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        if ID in duplicates:
+            print(line)
+
+def getUserIDs():
+    inFile = open('dataset/user.json','r')
+    outFile = open('processed/user_ids.json','w')
+    userIDs = {}
+    for line in inFile:
+        user = json.loads(line)
+        userIDs[user['user_id']] = user['name']
+    json.dump(userIDs,outFile)
+    inFile.close()
+    outFile.close()
+    return userIDs
+
+
 #ids = getIDs()
 #filterRelevant()
 #toCSV()
-
-inFile = open('processed/covid_features.json')
-duplicates = ['D35unF350QG06LXDe0Cv-Q',
-'nLGgJBtMfGv7_juXipXheA',
-'b5uCtk5iUcdeSWBNAx40Ug',
-'l3joBBpkq0ib11dKUpKMAw',
-'4v0aj1VWtNwvzOeQ2Ohzrg',
-'BpL-s3p572cxNdXJAsahpA',
-'ZBfoUKOkfocsYK6TFQpwaA',
-'s2Fv9gzUnnpfnkUTAMSK7w']
-for line in inFile:
-    business = json.loads(line)
-    ID = business['business_id']
-    if ID in duplicates:
-        print(line)
-
+#covidDuplicates()
+userIDs = getUserIDs()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 
