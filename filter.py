@@ -59,41 +59,87 @@ def getUserIDs():
     outFile.close()
     return userIDs
 
+def mostActiveUsers():
+    inFile = open('dataset/user.json','r')
+    #outFile = open('processed/activeUsers.json','w')
+    userIDs = {}
+    for line in inFile:
+        user = json.loads(line)
+        count = user['review_count']
+        if count > 10000:
+            print(count)
+    #json.dump(userIDs,outFile)
+    inFile.close()
+    #outFile.close()
+    #return userIDs
+
+def numberRestaurantReviews():
+    inFile = open('processed/review.json','r')
+    outFile = open('processed/numberReviews.json','w')
+    userIDs = {}
+    for line in inFile:
+        review = json.loads(line)
+        user = review['user_id']
+        if user in userIDs:
+            userIDs[user] += 1
+        else:
+            userIDs[user] = 1
+    json.dump(userIDs,outFile)
+    inFile.close()
+    outFile.close()
+
+def mostReviews():
+    inFile = open('processed/numberReviews.json','r')
+    userIDs = json.load(inFile)
+    for user in userIDs:
+        if userIDs[user] > 600:
+            print(user, userIDs[user])
+
+users = ['CxDOIDnH8gp9KXzpBHJYXw','ELcQDlf69kb-ihJfxZyL0A','bLbSNkLggFnqwNNzzq-Ijw','U4INQZOPSUaj8hMjLlZ3KA',
+'DK57YibC5ShBmqQl97CKog','d_TBs6J3twMy9GChqUEXkg','PKEzKWv_FktMm2mGPjwd0Q','cMEtAiW60I5wE_vLfTxoJQ',
+'MMf0LhEk5tGa1LvN7zcDnA','V-BbqKqO8anwplGRx9Q5aQ']
+
+def filterMostActiveReviews():
+    inFile = open('processed/review.json','r')
+    outFile = open('processed/mostActiveReviews.json','w')
+    for line in inFile:
+        review = json.loads(line)
+        if review['user_id'] in users:
+            outFile.write(line)
+    inFile.close()
+    outFile.close()
+
+def uniqueRestaurants():
+    for ID in users:
+        inFile = open('processed/mostActiveReviews.json','r')
+        businesses = {}
+        for line in inFile:
+            review = json.loads(line)
+            if review['user_id'] == ID:
+                business = review['business_id']
+                if business in businesses:
+                    businesses[business] += 1
+                else:
+                    businesses[business] = 1
+        inFile.close()
+        print(len(businesses),businesses[max(businesses,key=businesses.get)])
 
 #ids = getIDs()
 #filterRelevant()
 #toCSV()
 #covidDuplicates()
-userIDs = getUserIDs()
+#userIDs = getUserIDs()
+#mostActiveUsers()
+#numberRestaurantReviews()
+#mostReviews()
+#filterMostActiveReviews()
+#uniqueRestaurants()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 
-'''
-
-
-df_b = pd.read_json(business_json_path, lines=True)
-
-df_b = df_b[df_b['is_open'] == 1]
-
-drop_columns = ['is_open']
-df_b = df_b.drop(drop_columns, axis=1)
-
-business_restaurant = df_b[df_b['categories'].str.contains('Restaurants',case=False,na=False)]
-
-#df_explode = df_b.assign(categories = df_b.categories.str.split(', ')).explode('categories')
-
-#print(df_explode.categories.value_counts())
-
-#print(df_explode[df_explode['categories'].str.contains('Restaurants',case=True,na=False)].categories.value_counts())
-
-csv_name = 'processedData/business_restaurants.csv'
-business_restaurant.to_csv(csv_name, index=False)
-
-# make dictionary of business IDs for restaurants only and filter tips,reviews, checkins for only those businesses
-
 # filter by time
 # get number of reviews in last year?
-'''
+
 
 '''
 # filter dataset by city

@@ -60,6 +60,16 @@ There are 4,223,201 reviews of restaurants.
 43,992 restaurants listed with covid features, 8 restaurants which make up 12 duplicate entries 
 (8 have 2 entries and 4 have 3 entries), the only difference between their entries being in the 
 "Virtual Services Offered" section. 
+Allow to pick user ID of 10 users with most reviews made, to avoid cold start problem
+4 users have over 10,000 reviews, the most is 14,455 (Victor, 8k3aO-mPeyhbR5HUucA5aA). 
+I actually want to select the most reviews of the places I am accepting, restaurants. 
+When taking the most reviews of restaurants in teh dataset, a threshold of 600 reviews gives a list of 10 users, 
+with the most being 1747. 
+I then checked each of these for how many different restaurants they had reviewed and the greatest number of times 
+they had reviewed a single restaurant to check that none of them were just users who reviewed a small number of 
+restaurants a huge amount of times each. 
+All 10 users passed this criteria, with even the least active user having reviewed 496 unique restaurants, which will 
+certainly avoid any cold-start problems. 
 The entire Yelp dataset is huge and much of it is not necessary for my domain of bars.
 As such I prepared the data by eliminating any data not relevant to my domain.
 I selected features such as user ratings and a particular user's average rating,

@@ -106,24 +106,24 @@ Which city are you closest to?
 
 def getName():
     count = 0
-    name = ''
-    while name == '':
-        name = input('What is your name? > ').strip()
-    users = open('dataset/user.json','r')
-    for line in users:
-        user = json.loads(line)
-        if user['name'] == name:
-            #print(user['user_id'])
-            count += 1
-    print(count)
+    ID = ''
+    users = json.load(open('processed/user_ids.json','r'))
+    while ID == '':
+        ID = input('Enter your user ID > ').strip()
+        try:
+            name = users[ID]
+        except:
+            ID = ''
+        print('Hello, {}'.format(name))
+        ID = ''
 
 
 if __name__ == '__main__':
     welcome()
     getName()
-    city = whichCity()
-    print(city)
-    
+    #city = whichCity()
+    #print(city)
+    '''
     while True:
         choice = menu()
         if choice == 1:
@@ -132,6 +132,7 @@ if __name__ == '__main__':
             pass
         elif choice == 3:
             info()
+    '''
 
 # Resources:
 '''
