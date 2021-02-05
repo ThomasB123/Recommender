@@ -12,7 +12,7 @@ def getIDs():
         ID = business['business_id']
         try:
             if business['is_open'] == 1 and 'Restaurant' in business['categories']:
-                ids[ID] = 1
+                ids[ID] = business['name']
         except:
             pass
     json.dump(ids,outFile)
@@ -95,11 +95,10 @@ def mostReviews():
         if userIDs[user] > 600:
             print(user, userIDs[user])
 
-users = ['CxDOIDnH8gp9KXzpBHJYXw','ELcQDlf69kb-ihJfxZyL0A','bLbSNkLggFnqwNNzzq-Ijw','U4INQZOPSUaj8hMjLlZ3KA',
-'DK57YibC5ShBmqQl97CKog','d_TBs6J3twMy9GChqUEXkg','PKEzKWv_FktMm2mGPjwd0Q','cMEtAiW60I5wE_vLfTxoJQ',
-'MMf0LhEk5tGa1LvN7zcDnA','V-BbqKqO8anwplGRx9Q5aQ']
-
 def filterMostActiveReviews():
+    users = ['CxDOIDnH8gp9KXzpBHJYXw','ELcQDlf69kb-ihJfxZyL0A','bLbSNkLggFnqwNNzzq-Ijw','U4INQZOPSUaj8hMjLlZ3KA',
+    'DK57YibC5ShBmqQl97CKog','d_TBs6J3twMy9GChqUEXkg','PKEzKWv_FktMm2mGPjwd0Q','cMEtAiW60I5wE_vLfTxoJQ',
+    'MMf0LhEk5tGa1LvN7zcDnA','V-BbqKqO8anwplGRx9Q5aQ']
     inFile = open('processed/review.json','r')
     outFile = open('processed/mostActiveReviews.json','w')
     for line in inFile:
@@ -124,6 +123,20 @@ def uniqueRestaurants():
         inFile.close()
         print(len(businesses),businesses[max(businesses,key=businesses.get)])
 
+def dropText():
+    panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
+    panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
+    panda.to_csv('processed/mostActiveReviews.csv',index=False)
+
+
+def splitCities():
+    cities = {'Montreal':(45.50884,-73.58781),'Calgary':(51.05011,-114.08529),'Toronto':(43.70011,-79.4163),
+    'Pittsburgh':(40.44062,-79.99589),'Charlotte':(35.22709,-80.84313),'Urbana-Champaign':(40.11059,-88.20727),
+    'Phoenix':(33.44838,-112.07404),'Las Vegas':(36.17497,-115.13722),'Madison':(43.07305,-89.40123),
+    'Cleveland':(41.4995,-81.69541)}
+    inFile = open
+    print(len(cities))
+
 #ids = getIDs()
 #filterRelevant()
 #toCSV()
@@ -134,6 +147,8 @@ def uniqueRestaurants():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
+#dropText()
+splitCities()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

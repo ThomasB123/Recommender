@@ -23,15 +23,57 @@
 #   limitations
 # in order to get an idea of common or good or useful combinations of systems
 
-# bars on yelp
+# restaurants on yelp
 
+import os
 import json
+from collections import defaultdict
+#from surprise import BaselineOnly
+from surprise import SVD
+from surprise import Dataset
+from surprise import Reader
+#from surprise.model_selection import cross_validate
+
+
+def get_top_n(predictions, n=10):
+    top_n = defaultdict(list)
+    for uid, iid, true_r, est, _ in predictions:
+        top_n[uid].append((iid, est))
+    for uid, user_ratings in top_n.items():
+        user_ratings.sort(key=lambda x: x[1], reverse=True)
+        top_n[uid] = user_ratings[:n]
+    return top_n
+
+def getRecommendations(uid):
+    file_path = os.path.expanduser('processed/mostActiveReviews.csv')
+    reader = Reader(line_format='user item rating timestamp', sep=',')
+    data = Dataset.load_from_file(file_path, reader=reader)
+    #cross_validate(BaselineOnly(), data, verbose=True)
+
+    trainset = data.build_full_trainset()
+    algo = SVD()
+    algo.fit(trainset)
+
+    testset = trainset.build_anti_testset()
+    predictions = algo.test(testset)
+
+    top_n = get_top_n(predictions, n=10)
+
+    businessesFile = open('processed/business_ids.json','r')
+    businesses = json.load(businessesFile)
+    businessesFile.close()
+    usersFile = open('processed/user_ids.json','r')
+    users = json.load(usersFile)
+    usersFile.close()
+    #print(top_n.items())
+    for userid, user_ratings in top_n.items():
+        if userid == uid:
+            print(users[uid])
+            for (iid, _) in user_ratings:
+                print(businesses[iid])
+            #print(users[uid], [businesses[iid] for (iid, _) in user_ratings])
 
 def collaborativeFiltering():
-    pass
-
-
-def getRecommendations():
     pass
 
 def getPreferences():
@@ -112,15 +154,16 @@ def getName():
         ID = input('Enter your user ID > ').strip()
         try:
             name = users[ID]
+            print('Hello, {}'.format(name))
         except:
             ID = ''
-        print('Hello, {}'.format(name))
-        ID = ''
+    return ID
 
 
 if __name__ == '__main__':
     welcome()
-    getName()
+    uid = getName()
+    getRecommendations(uid)
     #city = whichCity()
     #print(city)
     '''
