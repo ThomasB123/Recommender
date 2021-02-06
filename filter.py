@@ -134,8 +134,42 @@ def splitCities():
     'Pittsburgh':(40.44062,-79.99589),'Charlotte':(35.22709,-80.84313),'Urbana-Champaign':(40.11059,-88.20727),
     'Phoenix':(33.44838,-112.07404),'Las Vegas':(36.17497,-115.13722),'Madison':(43.07305,-89.40123),
     'Cleveland':(41.4995,-81.69541)}
-    inFile = open
-    print(len(cities))
+    inFile = open('processed/business.json','r')
+    outFile = open('processed/closestCity.json','w')
+    closest = {}
+    for line in inFile:
+        business = json.loads(line)
+        lat = business['latitude']
+        lon = business['longitude']
+        smallest = 100000
+        closestCity = ''
+        for city in cities:
+            coords = cities[city]
+            distance = (coords[0]-lat)**2+(coords[1]-lon)**2
+            if distance < smallest:
+                smallest = distance
+                closestCity = city
+        closest[business['business_id']] = closestCity
+        with open('processed/cities/'+closestCity+'.json','a') as fout:
+            fout.write(line)
+    json.dump(closest,outFile)
+    inFile.close()
+    outFile.close()
+
+def splitIDs():
+    cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte',
+    'Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
+    for city in cities:
+        ids = {}
+        inFile = open('processed/cities/'+city+'.json','r')
+        outFile = open('processed/cities/'+city+'_ids.json','w')
+        for line in inFile:
+            business = json.loads(line)
+            ids[business['business_id']] = business['name']
+        json.dump(ids,outFile)
+        inFile.close()
+        outFile.close()
+    
 
 #ids = getIDs()
 #filterRelevant()
@@ -148,7 +182,8 @@ def splitCities():
 #filterMostActiveReviews()
 #uniqueRestaurants()
 #dropText()
-splitCities()
+#splitCities()
+splitIDs()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

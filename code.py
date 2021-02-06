@@ -60,12 +60,13 @@ def getRecommendations(uid):
     top_n = get_top_n(predictions, n=10)
 
     businessesFile = open('processed/business_ids.json','r')
-    businesses = json.load(businessesFile)
-    businessesFile.close()
-    usersFile = open('processed/user_ids.json','r')
-    users = json.load(usersFile)
-    usersFile.close()
-    #print(top_n.items())
+    #businesses = json.load(businessesFile)
+    #businessesFile.close()
+    #usersFile = open('processed/user_ids.json','r')
+    #users = json.load(usersFile)
+    #usersFile.close()
+    print(top_n.items())
+    return top_n.items()
     for userid, user_ratings in top_n.items():
         if userid == uid:
             print(users[uid])
