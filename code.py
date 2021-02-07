@@ -37,12 +37,16 @@ import texttable
 
 
 def get_top_n(predictions, n=10):
+    inFile = open('processed/closestCity.json','r')
+    closestCity = json.load(inFile)
+    inFile.close()
     top_n = defaultdict(list)
-    for uid, iid, true_r, est, _ in predictions:
-        top_n[uid].append((iid, est))
-    for uid, user_ratings in top_n.items():
+    for uidLocal, iid, true_r, est, _ in predictions:
+        if uidLocal == uid and closestCity[iid] == city: # only get recommendations for active user and in city they specified
+            top_n[uidLocal].append((iid, est))
+    for uidLocal, user_ratings in top_n.items():
         user_ratings.sort(key=lambda x: x[1], reverse=True)
-        top_n[uid] = user_ratings[:n]
+        top_n[uidLocal] = user_ratings[:n]
     return top_n
 
 def getRecommendations(uid):
@@ -58,12 +62,11 @@ def getRecommendations(uid):
     testset = trainset.build_anti_testset()
     predictions = algo.test(testset)
 
-    top_n = get_top_n(predictions, n=10)
-    end = time.time()
+    top_n = get_top_n(predictions, n=8) # get top 8 recommendations
     #print(top_n.items())
     return top_n.items()
 
-def presentRecommendations(uid,items):
+def presentRecommendations(uid,items): # takes items from recommender and 
     businessesFile = open('processed/business_ids.json','r')
     businesses = json.load(businessesFile)
     businessesFile.close()
@@ -71,10 +74,10 @@ def presentRecommendations(uid,items):
     users = json.load(usersFile)
     usersFile.close()
     table = texttable.Texttable()
-    table.set_cols_dtype(['i','t','t','t'])
-    table.set_cols_align(['c','l','c','c'])
-    table.set_cols_valign(['m','m','m','m'])
-    rows = [['Number','Name', 'City', 'Stars']]
+    table.set_cols_dtype(['i','t','t','t']) # specify data types
+    table.set_cols_align(['c','l','c','c']) # align columns horizontally
+    table.set_cols_valign(['m','m','m','m']) # align columns vertically
+    rows = [['Number','Name', 'City', 'Stars']] # titles of columns
     for userid, user_ratings in items:
         if userid == uid:
             #print(users[uid])
@@ -144,8 +147,8 @@ def welcome():
 def whichCity():
     cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte','Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
     question = '''
-Which city are you closest to?
-    '''
+Which city are you closest to, {}?
+    '''.format(name)
     for i in range(len(cities)):
         question += '''
 {}. {}'''.format(i+1,cities[i])
@@ -162,26 +165,25 @@ Which city are you closest to?
             pass
     return cities[choice-1]
 
-def getName():
+def getID():
     count = 0
     ID = ''
     users = json.load(open('processed/user_ids.json','r'))
     while ID == '':
         ID = input('Enter your user ID > ').strip()
         try:
-            name = users[ID]
+            name = users[ID] # check if user_id is a real user
             print('Hello, {}'.format(name))
         except:
             ID = ''
-    return ID
-
+    return ID, name
 
 if __name__ == '__main__':
     welcome()
-    uid = getName()
+    uid, name = getID()
+    city = whichCity()
     items = getRecommendations(uid)
     presentRecommendations(uid,items)
-    #city = whichCity()
     #print(city)
     '''
     while True:

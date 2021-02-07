@@ -87,6 +87,11 @@ Meaning better recommendations than either algorithm could achieve individually.
 
 \subsection{Recommendation techniques/algorithms}
 The first recommender system is collaborative filtering.
+I am using item-based collaborative filtering, since the number of users is larger than the number of items 
+(1,968,703 users vs 209,393 businesses in the entire dataset), this gives greater accuracy of predictions. 
+In this case the list of available items does not change, so a user-based method would be unnecessary. 
+One of the requirements for this system is justifiability, and item-based methods make it much easier to 
+explain why certain predictions were made. 
 I am using a weighted mixed combination of these two systems in order to produce the results
 of my hybrid recommender system.
 
