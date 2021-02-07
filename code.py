@@ -33,6 +33,7 @@ from surprise import SVD
 from surprise import Dataset
 from surprise import Reader
 #from surprise.model_selection import cross_validate
+import texttable
 
 
 def get_top_n(predictions, n=10):
@@ -58,21 +59,35 @@ def getRecommendations(uid):
     predictions = algo.test(testset)
 
     top_n = get_top_n(predictions, n=10)
-
-    businessesFile = open('processed/business_ids.json','r')
-    #businesses = json.load(businessesFile)
-    #businessesFile.close()
-    #usersFile = open('processed/user_ids.json','r')
-    #users = json.load(usersFile)
-    #usersFile.close()
-    print(top_n.items())
+    end = time.time()
+    #print(top_n.items())
     return top_n.items()
-    for userid, user_ratings in top_n.items():
+
+def presentRecommendations(uid,items):
+    businessesFile = open('processed/business_ids.json','r')
+    businesses = json.load(businessesFile)
+    businessesFile.close()
+    usersFile = open('processed/user_ids.json','r')
+    users = json.load(usersFile)
+    usersFile.close()
+    table = texttable.Texttable()
+    table.set_cols_dtype(['i','t','t','t'])
+    table.set_cols_align(['c','l','c','c'])
+    table.set_cols_valign(['m','m','m','m'])
+    rows = [['Number','Name', 'City', 'Stars']]
+    for userid, user_ratings in items:
         if userid == uid:
-            print(users[uid])
+            #print(users[uid])
+            i = 1
             for (iid, _) in user_ratings:
-                print(businesses[iid])
+                business = businesses[iid]
+                rows.append([i,business['name'],business['city'],business['stars']])
+                i += 1
+                #print(businesses[iid])
             #print(users[uid], [businesses[iid] for (iid, _) in user_ratings])
+    table.add_rows(rows)
+    print(table.draw() + "\n")
+
 
 def collaborativeFiltering():
     pass
@@ -164,7 +179,8 @@ def getName():
 if __name__ == '__main__':
     welcome()
     uid = getName()
-    getRecommendations(uid)
+    items = getRecommendations(uid)
+    presentRecommendations(uid,items)
     #city = whichCity()
     #print(city)
     '''

@@ -12,7 +12,9 @@ def getIDs():
         ID = business['business_id']
         try:
             if business['is_open'] == 1 and 'Restaurant' in business['categories']:
-                ids[ID] = business['name']
+                ids[ID] = {}
+                for attribute in ['name','address','city','state','postal_code','latitude','longitude','stars','review_count','attributes','categories','hours']:
+                    ids[ID][attribute] = business[attribute]
         except:
             pass
     json.dump(ids,outFile)
@@ -124,10 +126,20 @@ def uniqueRestaurants():
         print(len(businesses),businesses[max(businesses,key=businesses.get)])
 
 def dropText():
-    panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
-    panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
-    panda.to_csv('processed/mostActiveReviews.csv',index=False)
-
+    #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
+    #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
+    #panda.to_csv('processed/mostActiveReviews.csv',index=False)
+    inFile = open('processed/review.json','r')
+    outFile = open('processed/review.csv','w')
+    for line in inFile:
+        review = json.loads(line)
+        #outFile.write(review['user_id']+','+review['business_id']+','+str(review['stars'])+','+review['date']+'\n')
+        outFile.write('{},{},{},{}\n'.format(review['user_id'],review['business_id'],int(review['stars']),review['date']))
+    inFile.close()
+    outFile.close()
+    #panda = pd.read_json('processed/review.json',lines=True)
+    #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
+    #panda.to_csv('processed/review.csv',index=False)
 
 def splitCities():
     cities = {'Montreal':(45.50884,-73.58781),'Calgary':(51.05011,-114.08529),'Toronto':(43.70011,-79.4163),
@@ -181,9 +193,9 @@ def splitIDs():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-#dropText()
+dropText()
 #splitCities()
-splitIDs()
+#splitIDs()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

@@ -71,7 +71,8 @@ restaurants a huge amount of times each.
 All 10 users passed this criteria, with even the least active user having reviewed 496 unique restaurants, which will 
 certainly avoid any cold-start problems. 
 I split the businesses into 10 groups, by the city which they are closest to, I did this by using latitude and 
-longitude rather than State or 
+longitude rather than State or City since this does not give actual distance and restaurants close to a border 
+could then be mis-categorised. 
 The entire Yelp dataset is huge and much of it is not necessary for my domain of bars.
 As such I prepared the data by eliminating any data not relevant to my domain.
 I selected features such as user ratings and a particular user's average rating,
