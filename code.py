@@ -42,14 +42,15 @@ import pickle
 
 def collaborativeFiltering():
     ratings = pd.read_csv('processed/mostActiveReviewsCF.csv', encoding='"ISO-8859-1"')
-    ratings = ratings.sample(frac=0.01)
+    #ratings = ratings.sample(frac=1)
     ratings_training = ratings.sample(frac=0.7)
     ratings_test = ratings.drop(ratings_training.index)
     rating_mean = ratings_training.groupby(['business_id'], as_index=False, sort=False).mean().rename(columns={'rating':'rating_mean'})[['business_id','rating_mean']]
     adjusted_ratings = pd.merge(ratings_training,rating_mean,on='business_id',how='left',sort=False)
     adjusted_ratings['rating_adjusted']=adjusted_ratings['rating']-adjusted_ratings['rating_mean']
     adjusted_ratings.loc[adjusted_ratings['rating_adjusted']==0,'rating_adjusted'] = 1e-8
-    w_matrix = build_w_matrix(adjusted_ratings,True)
+    w_matrix = build_w_matrix(adjusted_ratings,False)
+    print('built w_matrix')
     #predict(uid,iid,w_matrix,adjusted_ratings,rating_mean)
     recommended_restaurants = recommend(uid,w_matrix,adjusted_ratings,rating_mean)
     print(recommended_restaurants)

@@ -51,14 +51,17 @@ These user reviews include ratings, text feedback, and other such information.
 \subsection{Data preparation and feature selection}
 Prepare data
 Of the 209,393 businesses in the dataset, 168,903 are still open. 
-There are 43,980 restaurants which are open and contain 'Restaurant' as one of the categories. 
-502 businesses in the overall dataset don't list anything in their categories section. 
-43,052 businesses had at least 1 check-in. 
-There are 4,223,201 reviews of restaurants. 
-695,951 tips for these restaurants. 
+There are 43,965 restaurants which are open and contain 'Restaurants' as one of the categories. 
+I then picked the top 12 most popular categories of restaurant: American, Mexican, Italian, Chinese, 
+Seafood, Japanese, Canadian, Mediterranean, Indian, Thai, Middle Eastern, Vietnamese (in that order). 
+When filtered for restaurants which fall into at least one of these categories, 
+20,565 had at least one check-in in 2019
+There are 2,956,316 reviews of these restaurants. 
+481,073 tips for these restaurants. 
 1,968,703 users. 
-43,992 restaurants listed with covid features, 8 restaurants which make up 12 duplicate entries 
-(8 have 2 entries and 4 have 3 entries), the only difference between their entries being in the 
+None of these restaurants are temporarily closed according to the covid features data. 
+20,573 restaurants listed with covid features, 4 restaurants which make up 8 duplicate entries 
+(4 have 3 entries), the only difference between their entries being in the 
 "Virtual Services Offered" section. 
 Allow to pick user ID of 10 users with most reviews made, to avoid cold start problem
 4 users have over 10,000 reviews, the most is 14,455 (Victor, 8k3aO-mPeyhbR5HUucA5aA). 
@@ -73,6 +76,13 @@ certainly avoid any cold-start problems.
 I split the businesses into 10 groups, by the city which they are closest to, I did this by using latitude and 
 longitude rather than State or City since this does not give actual distance and restaurants close to a border 
 could then be mis-categorised. 
+Since there are 4,223,201 reviews of restaurants I filtered them by removing any which had zero 'useful' votes. 
+When filtered to reviews with at least 1 'useful' vote, there are 1,735,732 and when at least 2 votes, 836,929
+At least 3 votes, 462,412, at least 5 votes 190,902. 
+51,737 with at least 10 votes
+
+Top categories: American, Mexican, Italian, Chinese, Seafood, Japanese, Canadian, Mediterranean, Indian, Thai, Middle Eastern, Vietnamese
+
 The entire Yelp dataset is huge and much of it is not necessary for my domain of bars.
 As such I prepared the data by eliminating any data not relevant to my domain.
 I selected features such as user ratings and a particular user's average rating,
@@ -84,6 +94,9 @@ Which two algorithms
 A hybrid scheme is a good way to design a recommender system, since you can get the
 best of both algorithms if done properly.
 Meaning better recommendations than either algorithm could achieve individually.
+Meta-level HRS with collaborative and content-based, or 
+Cascade with knowledge-based and collaborative
+Feature Augmentation with Knowledge Based and Collaborative
 
 \subsection{Recommendation techniques/algorithms}
 The first recommender system is collaborative filtering.
@@ -94,6 +107,10 @@ One of the requirements for this system is justifiability, and item-based method
 explain why certain predictions were made. 
 Item-item collaborative filtering looks for restaurants that are similar, in terms of how people rate them, 
 to the restaurants that the user has already rated and recommend the most similar restaurants. 
+Filtering reviews by city and then using CF won't work because the active user may not have ever reviewed a restaurant 
+in that city, so there is no way to assess similar restaurants to ones they have already rated. 
+Instead I carried out CF on all high quality reviews and produce an ordering of recommendations, which I then filter 
+by city. 
 
 I am using a weighted mixed combination of these two systems in order to produce the results
 of my hybrid recommender system.

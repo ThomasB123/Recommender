@@ -4,17 +4,25 @@ import pandas as pd
 
 
 def getIDs():
-    inFile = open('dataset/business.json','r')
+    inFile = open('processed/2019business.json','r')
     outFile = open('processed/business_ids.json','w')
     ids = {}
+    categories = ['American', 'Mexican', 'Italian', 'Chinese', 'Seafood', 'Japanese', 'Canadian', 'Mediterranean', 'Indian', 'Thai', 'Middle Eastern', 'Vietnamese']
     for line in inFile:
         business = json.loads(line)
         ID = business['business_id']
+        busCategories = business['categories']
         try:
-            if business['is_open'] == 1 and 'Restaurant' in business['categories']:
-                ids[ID] = {}
-                for attribute in ['name','address','city','state','postal_code','latitude','longitude','stars','review_count','attributes','categories','hours']:
-                    ids[ID][attribute] = business[attribute]
+            if business['is_open'] == 1 and 'Restaurants' in busCategories:
+                check = False
+                for category in categories:
+                    if category in busCategories:
+                        check = True
+                        break
+                if check:
+                    ids[ID] = {}
+                    for attribute in ['name','address','city','state','postal_code','latitude','longitude','stars','review_count','attributes','categories','hours']:
+                        ids[ID][attribute] = business[attribute]
         except:
             pass
     json.dump(ids,outFile)
@@ -33,6 +41,33 @@ def filterRelevant():
                 outFile.write(line)
         inFile.close()
         outFile.close()
+
+def lastCheckin():
+    inFile = open('processed/checkin.json','r')
+    outFile = open('processed/lastCheckin.json','w')
+    last = {}
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        checkins = business['date'].split(', ')
+        last[ID] = checkins[-1]
+    json.dump(last,outFile)
+    inFile.close()
+    outFile.close()
+
+def recentCheckin():
+    lastFile = open('processed/lastCheckin.json','r')
+    last = json.load(lastFile)
+    lastFile.close()
+    inFile = open('processed/business.json','r')
+    outFile = open('processed/2019business.json','w')
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        if ID in last and last[ID][:4] == '2019':
+            outFile.write(line)
+    inFile.close()
+    outFile.close()
 
 def toCSV():
     files = ['business','checkin','review','tip','covid_features']
@@ -94,13 +129,13 @@ def mostReviews():
     inFile = open('processed/numberReviews.json','r')
     userIDs = json.load(inFile)
     for user in userIDs:
-        if userIDs[user] > 600:
+        if userIDs[user] > 500:
             print(user, userIDs[user])
 
 def filterMostActiveReviews():
     users = ['CxDOIDnH8gp9KXzpBHJYXw','ELcQDlf69kb-ihJfxZyL0A','bLbSNkLggFnqwNNzzq-Ijw','U4INQZOPSUaj8hMjLlZ3KA',
     'DK57YibC5ShBmqQl97CKog','d_TBs6J3twMy9GChqUEXkg','PKEzKWv_FktMm2mGPjwd0Q','cMEtAiW60I5wE_vLfTxoJQ',
-    'MMf0LhEk5tGa1LvN7zcDnA','V-BbqKqO8anwplGRx9Q5aQ']
+    'V-BbqKqO8anwplGRx9Q5aQ']
     inFile = open('processed/review.json','r')
     outFile = open('processed/mostActiveReviews.json','w')
     for line in inFile:
@@ -129,9 +164,9 @@ def dropText():
     #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
     #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     #panda.to_csv('processed/mostActiveReviews.csv',index=False)
-    panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
+    panda = pd.read_json('processed/reviews10.json',lines=True)
     panda = panda.drop(['review_id','useful','funny','cool','text','date'],axis=1)
-    panda.to_csv('processed/mostActiveReviewsCF.csv',index=False)
+    panda.to_csv('processed/usefulReviewsCF.csv',index=False)
     '''
     inFile = open('processed/review.json','r')
     outFile = open('processed/review.csv','w')
@@ -184,21 +219,48 @@ def splitIDs():
         inFile.close()
         outFile.close()
 
+def filterUsefulReviews():
+    inFile = open('processed/reviews15.json','r')
+    outFile = open('processed/reviews20.json','w')
+    for line in inFile:
+        review = json.loads(line)
+        if review['useful'] > 19:
+            outFile.write(line)
+    inFile.close()
+    outFile.close()
+
 def splitReviews():
-    inFile = open('processed/review.json','r')
+    inFile = open('processed/reviews20.json','r')
     closestCity = open('processed/closestCity.json','r')
     closest = json.load(closestCity)
     closestCity.close()
     for line in inFile:
-        business = json.loads(line)
-        closestCity = closest[business['business_id']]
-        with open('processed/cities/'+closestCity+'_reviews.json','a') as fout:
+        review = json.loads(line)
+        closestCity = closest[review['business_id']]
+        with open('processed/cities/'+closestCity+'_reviews20.json','a') as fout:
             fout.write(line)
     inFile.close()
+
+def getCategories():
+    inFile = open('processed/business.json','r')
+    allCategories = {}
+    for line in inFile:
+        business = json.loads(line)
+        categories = business['categories'].split(', ')
+        for category in categories:
+            if category in allCategories:
+                allCategories[category] += 1
+            else:
+                allCategories[category] = 1
+    sortedDict = dict(sorted(allCategories.items(),key=lambda item: item[1]))
+    print(sortedDict)
+
 
 
 #ids = getIDs()
 #filterRelevant()
+#lastCheckin()
+#recentCheckin()
 #toCSV()
 #covidDuplicates()
 #userIDs = getUserIDs()
@@ -209,8 +271,10 @@ def splitReviews():
 #uniqueRestaurants()
 #dropText()
 #splitCities()
-#splitIDs()
-splitReviews()
+splitIDs()
+#filterUsefulReviews()
+#splitReviews()
+#getCategories()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 
