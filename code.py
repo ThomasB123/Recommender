@@ -34,7 +34,106 @@ from surprise import Dataset
 from surprise import Reader
 #from surprise.model_selection import cross_validate
 import texttable
+import pandas as pd
+import numpy as np
+import math
+import pickle
 
+
+def collaborativeFiltering():
+    ratings = pd.read_csv('processed/mostActiveReviewsCF.csv', encoding='"ISO-8859-1"')
+    ratings = ratings.sample(frac=0.01)
+    ratings_training = ratings.sample(frac=0.7)
+    ratings_test = ratings.drop(ratings_training.index)
+    rating_mean = ratings_training.groupby(['business_id'], as_index=False, sort=False).mean().rename(columns={'rating':'rating_mean'})[['business_id','rating_mean']]
+    adjusted_ratings = pd.merge(ratings_training,rating_mean,on='business_id',how='left',sort=False)
+    adjusted_ratings['rating_adjusted']=adjusted_ratings['rating']-adjusted_ratings['rating_mean']
+    adjusted_ratings.loc[adjusted_ratings['rating_adjusted']==0,'rating_adjusted'] = 1e-8
+    w_matrix = build_w_matrix(adjusted_ratings,True)
+    #predict(uid,iid,w_matrix,adjusted_ratings,rating_mean)
+    recommended_restaurants = recommend(uid,w_matrix,adjusted_ratings,rating_mean)
+    print(recommended_restaurants)
+
+def build_w_matrix(adjusted_ratings, load_existing_w_matrix):
+    w_matrix_columns = ['business_1', 'business_2', 'weight']
+    w_matrix = pd.DataFrame(columns=w_matrix_columns)
+    if load_existing_w_matrix:
+        with open('processed/w_matrix.pkl','rb') as input:
+            w_matrix = pickle.load(input)
+        input.close()
+    else:
+        distinct_business = np.unique(adjusted_ratings['business_id'])
+        i=0
+        for business_1 in distinct_business:
+            user_data = adjusted_ratings[adjusted_ratings['business_id'] == business_1]
+            distinct_users = np.unique(user_data['user_id'])
+
+            record_row_columns = ['user_id','business_1','business_2','rating_adjusted_1','rating_adjusted_2']
+            record_business_1_2 = pd.DataFrame(columns=record_row_columns)
+
+            for c_user_id in distinct_users:
+                c_business_1_rating = user_data[user_data['user_id'] == c_user_id]['rating_adjusted'].iloc[0]
+                c_user_data = adjusted_ratings[(adjusted_ratings['user_id'] == c_user_id) & (adjusted_ratings['business_id'] != business_1)]
+                c_distinct_business = np.unique(c_user_data['business_id'])
+                for business_2 in c_distinct_business:
+                    c_business_2_rating = c_user_data[c_user_data['business_id'] == business_2]['rating_adjusted'].iloc[0]
+                    record_row = pd.Series([c_user_id, business_1, business_2, c_business_1_rating, c_business_2_rating], index=record_row_columns)
+                    record_business_1_2 = record_business_1_2.append(record_row, ignore_index=True)
+            
+            distinct_business_2 = np.unique(record_business_1_2['business_2'])
+            for business_2 in distinct_business_2:
+                paired_business_1_2 = record_business_1_2[record_business_1_2['business_2'] == business_2]
+                sim_value_numerator = (paired_business_1_2['rating_adjusted_1']*paired_business_1_2['rating_adjusted_2']).sum()
+                sim_value_denominator = np.sqrt(np.square(paired_business_1_2['rating_adjusted_1']).sum()) * np.sqrt(np.square(paired_business_1_2['rating_adjusted_2']).sum())
+                sim_value_denominator = sim_value_denominator if sim_value_denominator != 0 else 1e-8
+                sim_value = sim_value_numerator / sim_value_denominator
+                w_matrix = w_matrix.append(pd.Series([business_1, business_2, sim_value], index=w_matrix_columns), ignore_index=True)
+        
+        with open('processed/w_matrix.pkl', 'wb') as output:
+            pickle.dump(w_matrix, output, pickle.HIGHEST_PROTOCOL)
+        output.close()
+    return w_matrix
+
+def predict(user_id, business_id, w_matrix, adjusted_ratings, rating_mean):
+    if rating_mean[rating_mean['business_id']==business_id].shape[0] > 0:
+        mean_rating = rating_mean[rating_mean['business_id']==business_id]['rating_mean'].iloc[0]
+    else:
+        mean_rating = 2.5
+    user_other_ratings = adjusted_ratings[adjusted_ratings['user_id']==user_id]
+    user_distinct_business = np.unique(user_other_ratings['business_id'])
+    sum_weighted_other_ratings = 0
+    sum_weights = 0
+    for business_j in user_distinct_business:
+        if rating_mean[rating_mean['business_id']==business_j].shape[0] > 0:
+            rating_mean_j = rating_mean[rating_mean['business_id']==business_j]['rating_mean'].iloc[0]
+        else:
+            rating_mean_j = 2.5
+        w_business_1_2 = w_matrix[(w_matrix['business_1']==business_id) & (w_matrix['business_2']==business_j)]
+        if w_business_1_2.shape[0] > 0:
+            user_rating_j = user_other_ratings[user_other_ratings['business_id']==business_j]
+            sum_weighted_other_ratings += (user_rating_j['rating'].iloc[0]-rating_mean_j) * w_business_1_2['weight'].iloc[0]
+            sum_weights += np.abs(w_business_1_2['weight'].iloc[0])
+    if sum_weights == 0:
+        predicted_rating = mean_rating
+    else:
+        predicted_rating = mean_rating + sum_weighted_other_ratings/sum_weights
+    return predicted_rating
+
+def recommend(uid,w_matrix,adjusted_ratings,rating_mean,amount=8):
+    distinct_business = np.unique(adjusted_ratings['business_id'])
+    user_ratings_all_business = pd.DataFrame(columns=['business_id','rating'])
+    user_rating = adjusted_ratings[adjusted_ratings['user_id']==uid]
+    i = 0
+    for business in distinct_business:
+        user_rating = user_rating[user_rating['business_id']==business]
+        if user_rating.shape[0] > 0:
+            rating_value = user_ratings_all_business.loc[i,'rating'] = user_rating.loc[0,business]
+        else:
+            rating_value = user_ratings_all_business.loc[i,'rating'] = predict(uid,business,w_matrix,adjusted_ratings,rating_mean)
+        user_ratings_all_business.loc[i] = [business,rating_value]
+        i += 1
+    recommendations = user_ratings_all_business.sort_values(by=['rating'],ascending=False).head(amount)
+    return recommendations
 
 def get_top_n(predictions, n=10):
     inFile = open('processed/closestCity.json','r')
@@ -91,9 +190,6 @@ def presentRecommendations(uid,items): # takes items from recommender and
     table.add_rows(rows)
     print(table.draw() + "\n")
 
-
-def collaborativeFiltering():
-    pass
 
 def getPreferences():
     pass
@@ -182,9 +278,9 @@ if __name__ == '__main__':
     welcome()
     uid, name = getID()
     city = whichCity()
-    items = getRecommendations(uid)
-    presentRecommendations(uid,items)
-    #print(city)
+    collaborativeFiltering()
+    #items = getRecommendations(uid)
+    #presentRecommendations(uid,items)
     '''
     while True:
         choice = menu()

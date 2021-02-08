@@ -129,6 +129,10 @@ def dropText():
     #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
     #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     #panda.to_csv('processed/mostActiveReviews.csv',index=False)
+    panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
+    panda = panda.drop(['review_id','useful','funny','cool','text','date'],axis=1)
+    panda.to_csv('processed/mostActiveReviewsCF.csv',index=False)
+    '''
     inFile = open('processed/review.json','r')
     outFile = open('processed/review.csv','w')
     for line in inFile:
@@ -137,9 +141,7 @@ def dropText():
         outFile.write('{},{},{},{}\n'.format(review['user_id'],review['business_id'],int(review['stars']),review['date']))
     inFile.close()
     outFile.close()
-    #panda = pd.read_json('processed/review.json',lines=True)
-    #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
-    #panda.to_csv('processed/review.csv',index=False)
+    '''
 
 def splitCities():
     cities = {'Montreal':(45.50884,-73.58781),'Calgary':(51.05011,-114.08529),'Toronto':(43.70011,-79.4163),
@@ -181,7 +183,19 @@ def splitIDs():
         json.dump(ids,outFile)
         inFile.close()
         outFile.close()
-    
+
+def splitReviews():
+    inFile = open('processed/review.json','r')
+    closestCity = open('processed/closestCity.json','r')
+    closest = json.load(closestCity)
+    closestCity.close()
+    for line in inFile:
+        business = json.loads(line)
+        closestCity = closest[business['business_id']]
+        with open('processed/cities/'+closestCity+'_reviews.json','a') as fout:
+            fout.write(line)
+    inFile.close()
+
 
 #ids = getIDs()
 #filterRelevant()
@@ -193,50 +207,12 @@ def splitIDs():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-dropText()
+#dropText()
 #splitCities()
 #splitIDs()
+splitReviews()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 
 # filter by time
 # get number of reviews in last year?
-
-
-'''
-# filter dataset by city
-
-states = {}
-with open('yelp_dataset/yelp_academic_dataset_business.json') as f:
-    for line in f:
-        business = json.loads(line)
-        state = business['state']
-        city = business['city']
-        if state not in states:
-            states[state] = {city:1}
-        else:
-            if city not in states[state]:
-                states[state][city] = 1
-            else:
-                states[state][city] = states[state][city] + 1
-print(states)
-
-for state in states:
-    with open('processedData/'+state+'.txt','w') as fout:
-        for city in states[state]:
-            if states[state][city] > 1:
-                fout.write(city + '\n')
-
-
-
-print(data)
-states = []
-
-for business in data:
-    state = business['state']
-    if state not in states:
-        states.append(states)
-
-print(states)
-
-'''
