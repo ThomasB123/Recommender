@@ -220,6 +220,10 @@ def getRecommendations(uid):
 def hybrid():
     pass
     # use namsor to get info about person from name, then use to recommend 
+    # take scores produced by SVD calculations, e.g. when there's nothing to go on
+    # break ties by looking at review count, accepts credit cards, price range, attire, alcohol, 
+    # reservations, takeout, good for groups, ambience, good for kids, drive thru, wifi, parking, 
+    # caters, delivery, noise level, outdoor seating, has tv, good for meal, categories, hours
 
 def presentRecommendations(items): # takes items from recommender and 
     if items == []:
@@ -279,11 +283,12 @@ def moreInformation(restaurant):
     table.set_cols_align(['l','l'])
     rows = [['Opening Hours:','']]
     hours = business['hours']
-    for day in hours:
-        times = hours[day].replace(':0',':00')
-        rows.append([day,times])
-    table.add_rows(rows)
-    print(table.draw())
+    if hours != None:
+        for day in hours:
+            times = hours[day].replace(':0',':00')
+            rows.append([day,times])
+        table.add_rows(rows)
+        print(table.draw())
     if closed != 'FALSE':
         print()
         print('{} is closed temporarily until {}\n'.format(name,closed.split('T')[0]))
