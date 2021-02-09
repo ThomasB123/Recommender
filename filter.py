@@ -243,17 +243,23 @@ def splitReviews():
 
 def getCategories():
     inFile = open('processed/business.json','r')
+    outFile = open('processed/categories.json','w')
     allCategories = {}
     for line in inFile:
         business = json.loads(line)
-        categories = business['categories'].split(', ')
-        for category in categories:
-            if category in allCategories:
-                allCategories[category] += 1
-            else:
-                allCategories[category] = 1
-    sortedDict = dict(sorted(allCategories.items(),key=lambda item: item[1]))
-    print(sortedDict)
+        #categories = business['categories'].split(', ')
+        allCategories[business['business_id']] = business['categories']
+        #for category in categories:
+        #    allCategories[business]
+        #    if category in allCategories:
+        #        allCategories[category] += 1
+        #    else:
+        #        allCategories[category] = 1
+    #sortedDict = dict(sorted(allCategories.items(),key=lambda item: item[1]))
+    #print(sortedDict)
+    json.dump(allCategories,outFile)
+    inFile.close()
+    outFile.close()
 
 
 
@@ -269,12 +275,12 @@ def getCategories():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-dropText()
+#dropText()
 #splitCities()
 #splitIDs()
 #filterUsefulReviews()
 #splitReviews()
-#getCategories()
+getCategories()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

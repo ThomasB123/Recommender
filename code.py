@@ -40,9 +40,9 @@ import math
 import pickle
 import time
 
-def collaborativeFiltering():
+def collaborativeFiltering(): # code adapted from https://github.com/wwwbbb8510/baseline-rs
     ratings = pd.read_csv('processed/usefulReviews.csv', encoding='"ISO-8859-1"')
-    ratings = ratings.sample(frac=0.2)
+    ratings = ratings.sample(frac=0.01)
     ratings_training = ratings.sample(frac=0.7)
     ratings_test = ratings.drop(ratings_training.index)
     rating_mean = ratings_training.groupby(['business_id'], as_index=False, sort=False).mean().rename(columns={'rating':'rating_mean'})[['business_id','rating_mean']]
@@ -50,12 +50,19 @@ def collaborativeFiltering():
     adjusted_ratings['rating_adjusted']=adjusted_ratings['rating']-adjusted_ratings['rating_mean']
     adjusted_ratings.loc[adjusted_ratings['rating_adjusted']==0,'rating_adjusted'] = 1e-8
     start = time.time()
-    w_matrix = build_w_matrix(adjusted_ratings,False)
+    w_matrix = build_w_matrix(adjusted_ratings,True)
     end = time.time()
     print(end-start)
     print('built w_matrix')
     #predict(uid,iid,w_matrix,adjusted_ratings,rating_mean)
     recommended_restaurants = recommend(uid,w_matrix,adjusted_ratings,rating_mean)
+    presentRecommendations(recommended_restaurants)
+    #items = []
+    #for i in range(8):
+    #    items.append(recommended_restaurants['business_id'].iloc[i])
+    #print(items)
+    #presentRecommendations(items)
+    
     print(recommended_restaurants)
     end = time.time()
     print(end-start)
@@ -125,7 +132,7 @@ def predict(uid, business_id, w_matrix, adjusted_ratings, rating_mean):
         predicted_rating = mean_rating + sum_weighted_other_ratings/sum_weights
     return predicted_rating
 
-def recommend(uid,w_matrix,adjusted_ratings,rating_mean,amount=8):
+def recommend(uid,w_matrix,adjusted_ratings,rating_mean,amount=5):
     distinct_business = np.unique(adjusted_ratings['business_id'])
     user_ratings_all_business = pd.DataFrame(columns=['business_id','rating'])
     user_rating = adjusted_ratings[adjusted_ratings['user_id']==uid]
@@ -138,9 +145,27 @@ def recommend(uid,w_matrix,adjusted_ratings,rating_mean,amount=8):
             rating_value = user_ratings_all_business.loc[i,'rating'] = predict(uid,business,w_matrix,adjusted_ratings,rating_mean)
         user_ratings_all_business.loc[i] = [business,rating_value]
         i += 1
-    recommendations = user_ratings_all_business.sort_values(by=['rating'],ascending=False).head(amount)
-    print(recommendations['business_id'].iloc[0])
-    return recommendations
+    recommendations = user_ratings_all_business.sort_values(by=['rating'],ascending=False) # use this for hybrid
+    closestCity = open('processed/closestCity.json','r')
+    location = json.load(closestCity)
+    closestCity.close()
+    categoriesFile = open('processed/categories.json','r')
+    categories = json.load(categoriesFile)
+    categoriesFile.close()
+    howMany = 0
+    i = 0
+    relevantRestaurants = []
+    print(city)
+    while howMany < amount: # get the top x many which fit location and category
+        business = recommendations['business_id'].iloc[i]
+        print(location[business]==city)
+        print(categories[business])
+        if location[business] == city and (category in categories[business]):
+            relevantRestaurants.append(business)
+            howMany += 1
+        i += 1
+    #.head(amount)
+    return relevantRestaurants
 
 def get_top_n(predictions, n=10):
     inFile = open('processed/closestCity.json','r')
@@ -172,28 +197,31 @@ def getRecommendations(uid):
     #print(top_n.items())
     return top_n.items()
 
-def presentRecommendations(uid,items): # takes items from recommender and 
+def hybrid():
+    pass
+
+def presentRecommendations(items): # takes items from recommender and 
     businessesFile = open('processed/business_ids.json','r')
     businesses = json.load(businessesFile)
     businessesFile.close()
-    usersFile = open('processed/user_ids.json','r')
-    users = json.load(usersFile)
-    usersFile.close()
+    #usersFile = open('processed/user_ids.json','r')
+    #users = json.load(usersFile)
+    #usersFile.close()
     table = texttable.Texttable()
     table.set_cols_dtype(['i','t','t','t']) # specify data types
     table.set_cols_align(['c','l','c','c']) # align columns horizontally
     table.set_cols_valign(['m','m','m','m']) # align columns vertically
     rows = [['Number','Name', 'City', 'Stars']] # titles of columns
-    for userid, user_ratings in items:
-        if userid == uid:
-            #print(users[uid])
-            i = 1
-            for (iid, _) in user_ratings:
-                business = businesses[iid]
-                rows.append([i,business['name'],business['city'],business['stars']])
-                i += 1
-                #print(businesses[iid])
-            #print(users[uid], [businesses[iid] for (iid, _) in user_ratings])
+    i = 1
+    for iid in items:
+        #for userid, user_ratings in items:
+        #if userid == uid:
+        #    i = 1
+            #for (iid, _) in user_ratings:
+        business = businesses[iid]
+        rows.append([i,business['name'],business['city'],business['stars']])
+        i += 1
+        #print(users[uid], [businesses[iid] for (iid, _) in user_ratings])
     table.add_rows(rows)
     print(table.draw() + "\n")
 
