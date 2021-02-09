@@ -164,9 +164,9 @@ def dropText():
     #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
     #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     #panda.to_csv('processed/mostActiveReviews.csv',index=False)
-    panda = pd.read_json('processed/reviews10.json',lines=True)
+    panda = pd.read_json('processed/usefulReviews.json',lines=True)
     panda = panda.drop(['review_id','useful','funny','cool','text','date'],axis=1)
-    panda.to_csv('processed/usefulReviewsCF.csv',index=False)
+    panda.to_csv('processed/usefulReviews.csv',index=False)
     '''
     inFile = open('processed/review.json','r')
     outFile = open('processed/review.csv','w')
@@ -220,24 +220,24 @@ def splitIDs():
         outFile.close()
 
 def filterUsefulReviews():
-    inFile = open('processed/reviews15.json','r')
-    outFile = open('processed/reviews20.json','w')
+    inFile = open('processed/review.json','r')
+    outFile = open('processed/usefulReviews.json','w')
     for line in inFile:
         review = json.loads(line)
-        if review['useful'] > 19:
+        if review['useful'] > 9:
             outFile.write(line)
     inFile.close()
     outFile.close()
 
 def splitReviews():
-    inFile = open('processed/reviews20.json','r')
+    inFile = open('processed/usefulReviews.json','r')
     closestCity = open('processed/closestCity.json','r')
     closest = json.load(closestCity)
     closestCity.close()
     for line in inFile:
         review = json.loads(line)
         closestCity = closest[review['business_id']]
-        with open('processed/cities/'+closestCity+'_reviews20.json','a') as fout:
+        with open('processed/cities/'+closestCity+'_usefulReviews.json','a') as fout:
             fout.write(line)
     inFile.close()
 
@@ -269,9 +269,9 @@ def getCategories():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-#dropText()
+dropText()
 #splitCities()
-splitIDs()
+#splitIDs()
 #filterUsefulReviews()
 #splitReviews()
 #getCategories()

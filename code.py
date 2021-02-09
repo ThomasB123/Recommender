@@ -38,22 +38,27 @@ import pandas as pd
 import numpy as np
 import math
 import pickle
-
+import time
 
 def collaborativeFiltering():
-    ratings = pd.read_csv('processed/mostActiveReviewsCF.csv', encoding='"ISO-8859-1"')
-    #ratings = ratings.sample(frac=1)
+    ratings = pd.read_csv('processed/usefulReviews.csv', encoding='"ISO-8859-1"')
+    ratings = ratings.sample(frac=0.2)
     ratings_training = ratings.sample(frac=0.7)
     ratings_test = ratings.drop(ratings_training.index)
     rating_mean = ratings_training.groupby(['business_id'], as_index=False, sort=False).mean().rename(columns={'rating':'rating_mean'})[['business_id','rating_mean']]
     adjusted_ratings = pd.merge(ratings_training,rating_mean,on='business_id',how='left',sort=False)
     adjusted_ratings['rating_adjusted']=adjusted_ratings['rating']-adjusted_ratings['rating_mean']
     adjusted_ratings.loc[adjusted_ratings['rating_adjusted']==0,'rating_adjusted'] = 1e-8
+    start = time.time()
     w_matrix = build_w_matrix(adjusted_ratings,False)
+    end = time.time()
+    print(end-start)
     print('built w_matrix')
     #predict(uid,iid,w_matrix,adjusted_ratings,rating_mean)
     recommended_restaurants = recommend(uid,w_matrix,adjusted_ratings,rating_mean)
     print(recommended_restaurants)
+    end = time.time()
+    print(end-start)
 
 def build_w_matrix(adjusted_ratings, load_existing_w_matrix):
     w_matrix_columns = ['business_1', 'business_2', 'weight']
@@ -95,12 +100,12 @@ def build_w_matrix(adjusted_ratings, load_existing_w_matrix):
         output.close()
     return w_matrix
 
-def predict(user_id, business_id, w_matrix, adjusted_ratings, rating_mean):
+def predict(uid, business_id, w_matrix, adjusted_ratings, rating_mean):
     if rating_mean[rating_mean['business_id']==business_id].shape[0] > 0:
         mean_rating = rating_mean[rating_mean['business_id']==business_id]['rating_mean'].iloc[0]
     else:
         mean_rating = 2.5
-    user_other_ratings = adjusted_ratings[adjusted_ratings['user_id']==user_id]
+    user_other_ratings = adjusted_ratings[adjusted_ratings['user_id']==uid]
     user_distinct_business = np.unique(user_other_ratings['business_id'])
     sum_weighted_other_ratings = 0
     sum_weights = 0
@@ -134,6 +139,7 @@ def recommend(uid,w_matrix,adjusted_ratings,rating_mean,amount=8):
         user_ratings_all_business.loc[i] = [business,rating_value]
         i += 1
     recommendations = user_ratings_all_business.sort_values(by=['rating'],ascending=False).head(amount)
+    print(recommendations['business_id'].iloc[0])
     return recommendations
 
 def get_top_n(predictions, n=10):
@@ -242,7 +248,8 @@ def welcome():
     print()
 
 def whichCity():
-    cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte','Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
+    cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte',
+    'Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
     question = '''
 Which city are you closest to, {}?
     '''.format(name)
@@ -262,6 +269,28 @@ Which city are you closest to, {}?
             pass
     return cities[choice-1]
 
+def getCategory():
+    categories = ['American', 'Mexican', 'Italian', 'Chinese', 'Seafood', 'Japanese', 
+    'Canadian', 'Mediterranean', 'Indian', 'Thai', 'Middle Eastern', 'Vietnamese']
+    question = '''
+What type of food are you looking for, {}?
+    '''.format(name)
+    for i in range(len(categories)):
+        question += '''
+{}. {}'''.format(i+1,categories[i])
+    print(question)
+    print()
+    check = False
+    while not check:
+        choice = input('Your choice > ')
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(categories):
+                check = True
+        except:
+            pass
+    return categories[choice-1]
+
 def getID():
     count = 0
     ID = ''
@@ -278,6 +307,7 @@ def getID():
 if __name__ == '__main__':
     welcome()
     uid, name = getID()
+    category = getCategory()
     city = whichCity()
     collaborativeFiltering()
     #items = getRecommendations(uid)
