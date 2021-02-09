@@ -261,6 +261,20 @@ def getCategories():
     inFile.close()
     outFile.close()
 
+def formatCovidFeatures():
+    inFile = open('processed/covid_features.json','r')
+    outFile = open('processed/covid.json','w')
+    features = {}
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        features[ID] = {}
+        for attribute in ['highlights','delivery or takeout','Grubhub enabled','Covid Banner','Temporary Closed Until']:
+            features[ID][attribute] = business[attribute]
+    json.dump(features,outFile)
+    inFile.close()
+    outFile.close()
+
 
 
 #ids = getIDs()
@@ -275,12 +289,13 @@ def getCategories():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-dropText()
+#dropText()
 #splitCities()
 #splitIDs()
 #filterUsefulReviews()
 #splitReviews()
 #getCategories()
+formatCovidFeatures()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

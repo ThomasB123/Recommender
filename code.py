@@ -189,9 +189,8 @@ def getRecommendations(uid):
     trainset = data.build_full_trainset()
     algo = SVD()
     #start = time.time()
-    print('Getting Recommendations...')
+    print('Getting recommendations...')
     algo.fit(trainset)
-    print()
     #end = time.time()
     #print(end-start)
     suggestions = {}
@@ -211,6 +210,7 @@ def getRecommendations(uid):
 
 def hybrid():
     pass
+    # use namsor to get info about person from name, then use to recommend 
 
 def presentRecommendations(items): # takes items from recommender and 
     if items == []:
@@ -228,15 +228,15 @@ def presentRecommendations(items): # takes items from recommender and
         rows.append([i,business['name'],business['city'],business['stars']])
         i += 1
     table.add_rows(rows)
+    print()
     print('Here are some {} restaurants in {} that you might like:'.format(category,city))
     print(table.draw() + '\n')
-    print('Select a restaurant to see more about it')
-    print()
+    print('Select a restaurant to see more information')
     check = False
     while not check:
-        choice = input('Your Choice > ')
+        choice = input('Your Choice > ').strip()
         try:
-            choice = int(choice.strip())
+            choice = int(choice)
             if 1 <= choice <= len(items):
                 check = True
         except:
@@ -247,13 +247,21 @@ def moreInformation(restaurant):
     if restaurant == None:
         return
     business = businesses[restaurant]
+    name = business['name']
     address = '{}\n{}, {}'.format(business['address'],business['city'],business['state'])
+    features = covidFeatures[restaurant]
+    delivery = features['delivery or takeout']
+    delivery = 'Yes' if delivery=='TRUE' else 'No'
+    grubhub = features['Grubhub enabled']
+    grubhub = 'Yes' if grubhub=='TRUE' else 'No'
+    message = features['Covid Banner']
+    closed = features['Temporary Closed Until']
     table = texttable.Texttable()
-    table.set_cols_dtype(['t','t','t','t'])
-    table.set_cols_align(['l','c','c','c'])
-    table.set_cols_valign(['m','m','m','m'])
-    table.add_rows([['Name','Address','Stars','No. reviews'],
-    [business['name'],address,business['stars'],business['review_count']]])
+    table.set_cols_dtype(['t','t','t','t','t','t'])
+    table.set_cols_align(['l','c','c','c','c','c'])
+    table.set_cols_valign(['m','m','m','m','m','m'])
+    table.add_rows([['Name','Address','Stars','No. reviews','Delivery or Takeout','Grubhub'],
+    [name,address,business['stars'],business['review_count'],delivery,grubhub]])
     print(table.draw())
     print()
     # add covid information here as well
@@ -268,10 +276,32 @@ def moreInformation(restaurant):
         rows.append([day,times])
     table.add_rows(rows)
     print(table.draw())
+    if closed != 'FALSE':
+        print()
+        print('{} is closed temporarily until {}\n'.format(name,closed.split('T')[0]))
+    if message != 'FALSE':
+        print()
+        print('Covid message from {}:'.format(name))
+        print(message)
+        print()
+    print('''
+What do you want to do?
+1. See the list again
+2. Return to main menu
+    ''')
+    while True:
+        choice = input('Your Choice > ').strip()
+        try:
+            choice = int(choice)
+            if choice == 1:
+                return True
+            elif choice == 2:
+                return False
+        except:
+            pass
 
 def getPreferences():
     pass
-
 
 
 def info():
@@ -305,10 +335,10 @@ q. Quit
     ''')
     check = False
     while not check:
-        choice = input('Your choice > ')
+        choice = input('Your choice > ').strip()
         try:
             choice = int(choice)
-            if 1 <= choice <= 4:
+            if 1 <= choice <= 5:
                 check = True
         except:
             if choice == 'q' or choice == 'Q':
@@ -333,7 +363,7 @@ Which city are you closest to, {}?
     print()
     check = False
     while not check:
-        choice = input('Your choice > ')
+        choice = input('Your choice > ').strip()
         try:
             choice = int(choice)
             if 1 <= choice <= len(cities):
@@ -355,7 +385,7 @@ What type of food are you looking for, {}?
     print()
     check = False
     while not check:
-        choice = input('Your choice > ')
+        choice = input('Your choice > ').strip()
         try:
             choice = int(choice)
             if 1 <= choice <= len(categories):
@@ -378,12 +408,16 @@ def getID():
 
 if __name__ == '__main__':
     welcome()
-    usersFile = open('processed/user_ids.json','r')
+    usersFile = open('processed/user_ids.json','r') # load these 3 json files here to save time later
     users = json.load(usersFile)
     usersFile.close()
-    businessesFile = open('processed/business_ids.json','r') # load json data here to save time later
+    businessesFile = open('processed/business_ids.json','r')
     businesses = json.load(businessesFile)
     businessesFile.close()
+    covidFile = open('processed/covid.json','r')
+    covidFeatures = json.load(covidFile)
+    covidFile.close()
+
     uid, name = getID()
     category = getCategory()
     categoriesFile = open('processed/categories.json','r')
@@ -395,8 +429,10 @@ if __name__ == '__main__':
     cityRestaurants.close()
     #collaborativeFiltering()
     items = getRecommendations(uid)
-    restaurant = presentRecommendations(items)
-    moreInformation(restaurant)
+    moreInfo = True
+    while moreInfo:
+        restaurant = presentRecommendations(items)
+        moreInfo = moreInformation(restaurant)
     
     while True:
         choice = menu()
@@ -414,8 +450,10 @@ if __name__ == '__main__':
             cityRestaurants.close()
         elif choice == 4:
             items = getRecommendations(uid)
-            restaurant = presentRecommendations(items)
-            moreInformation(restaurant)
+            moreInfo = True
+            while moreInfo:
+                restaurant = presentRecommendations(items)
+                moreInfo = moreInformation(restaurant)
         elif choice == 5:
             info()
 
