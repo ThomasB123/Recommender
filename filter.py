@@ -165,7 +165,7 @@ def dropText():
     #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     #panda.to_csv('processed/mostActiveReviews.csv',index=False)
     panda = pd.read_json('processed/usefulReviews.json',lines=True)
-    panda = panda.drop(['review_id','useful','funny','cool','text','date'],axis=1)
+    panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     panda.to_csv('processed/usefulReviews.csv',index=False)
     '''
     inFile = open('processed/review.json','r')
@@ -224,7 +224,7 @@ def filterUsefulReviews():
     outFile = open('processed/usefulReviews.json','w')
     for line in inFile:
         review = json.loads(line)
-        if review['useful'] > 9:
+        if review['useful'] > 4:
             outFile.write(line)
     inFile.close()
     outFile.close()
@@ -275,12 +275,12 @@ def getCategories():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-#dropText()
+dropText()
 #splitCities()
 #splitIDs()
 #filterUsefulReviews()
 #splitReviews()
-getCategories()
+#getCategories()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 

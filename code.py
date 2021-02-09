@@ -181,50 +181,93 @@ def get_top_n(predictions, n=10):
     return top_n
 
 def getRecommendations(uid):
-    file_path = os.path.expanduser('processed/mostActiveReviews.csv')
+    file_path = os.path.expanduser('processed/usefulReviews.csv')
     reader = Reader(line_format='user item rating timestamp', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True)
 
     trainset = data.build_full_trainset()
     algo = SVD()
+    #start = time.time()
+    print('Getting Recommendations...')
     algo.fit(trainset)
+    print()
+    #end = time.time()
+    #print(end-start)
+    suggestions = {}
+    for iid in iids:
+        if iid in categories and category in categories[iid]: # include all reviews?
+            pred = algo.predict(uid,iid)#,verbose=True)#,r_ui=4, verbose=True)
+            suggestions[pred[1]] = pred[3]
+    suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True)
+    #print(suggestions)
+    return suggestions[:8] # present top 8 restaurants
+    #testset = trainset.build_anti_testset()
+    #predictions = algo.test(testset)
 
-    testset = trainset.build_anti_testset()
-    predictions = algo.test(testset)
-
-    top_n = get_top_n(predictions, n=8) # get top 8 recommendations
+    #top_n = get_top_n(predictions, n=8) # get top 8 recommendations
     #print(top_n.items())
-    return top_n.items()
+    #return top_n.items()
 
 def hybrid():
     pass
 
 def presentRecommendations(items): # takes items from recommender and 
-    businessesFile = open('processed/business_ids.json','r')
-    businesses = json.load(businessesFile)
-    businessesFile.close()
-    #usersFile = open('processed/user_ids.json','r')
-    #users = json.load(usersFile)
-    #usersFile.close()
+    if items == []:
+        print('There are no {} restaurants in {}'.format(category,city))
+        return None
     table = texttable.Texttable()
     table.set_cols_dtype(['i','t','t','t']) # specify data types
     table.set_cols_align(['c','l','c','c']) # align columns horizontally
     table.set_cols_valign(['m','m','m','m']) # align columns vertically
     rows = [['Number','Name', 'City', 'Stars']] # titles of columns
     i = 1
-    for iid in items:
-        #for userid, user_ratings in items:
-        #if userid == uid:
-        #    i = 1
-            #for (iid, _) in user_ratings:
+    for item in items:
+        iid = item[0]
         business = businesses[iid]
         rows.append([i,business['name'],business['city'],business['stars']])
         i += 1
-        #print(users[uid], [businesses[iid] for (iid, _) in user_ratings])
     table.add_rows(rows)
-    print(table.draw() + "\n")
+    print('Here are some {} restaurants in {} that you might like:'.format(category,city))
+    print(table.draw() + '\n')
+    print('Select a restaurant to see more about it')
+    print()
+    check = False
+    while not check:
+        choice = input('Your Choice > ')
+        try:
+            choice = int(choice.strip())
+            if 1 <= choice <= len(items):
+                check = True
+        except:
+            pass
+    return items[choice-1][0]
 
+def moreInformation(restaurant):
+    if restaurant == None:
+        return
+    business = businesses[restaurant]
+    address = '{}\n{}, {}'.format(business['address'],business['city'],business['state'])
+    table = texttable.Texttable()
+    table.set_cols_dtype(['t','t','t','t'])
+    table.set_cols_align(['l','c','c','c'])
+    table.set_cols_valign(['m','m','m','m'])
+    table.add_rows([['Name','Address','Stars','No. reviews'],
+    [business['name'],address,business['stars'],business['review_count']]])
+    print(table.draw())
+    print()
+    # add covid information here as well
+    table = texttable.Texttable()
+    table.set_deco(texttable.Texttable.HEADER)
+    table.set_cols_dtype(['t','t'])
+    table.set_cols_align(['l','l'])
+    rows = [['Opening Hours:','']]
+    hours = business['hours']
+    for day in hours:
+        times = hours[day].replace(':0',':00')
+        rows.append([day,times])
+    table.add_rows(rows)
+    print(table.draw())
 
 def getPreferences():
     pass
@@ -253,9 +296,11 @@ def menu():
     print('''
 What would you like to do?
 
-1. Get recommendations
-2. Give preferences
-3. Information
+1. Change user
+2. Change category
+3. Change city
+4. Get recommendations
+5. Information
 q. Quit
     ''')
     check = False
@@ -263,7 +308,7 @@ q. Quit
         choice = input('Your choice > ')
         try:
             choice = int(choice)
-            if 1 <= choice <= 3:
+            if 1 <= choice <= 4:
                 check = True
         except:
             if choice == 'q' or choice == 'Q':
@@ -322,7 +367,6 @@ What type of food are you looking for, {}?
 def getID():
     count = 0
     ID = ''
-    users = json.load(open('processed/user_ids.json','r'))
     while ID == '':
         ID = input('Enter your user ID > ').strip()
         try:
@@ -334,22 +378,46 @@ def getID():
 
 if __name__ == '__main__':
     welcome()
+    usersFile = open('processed/user_ids.json','r')
+    users = json.load(usersFile)
+    usersFile.close()
+    businessesFile = open('processed/business_ids.json','r') # load json data here to save time later
+    businesses = json.load(businessesFile)
+    businessesFile.close()
     uid, name = getID()
     category = getCategory()
+    categoriesFile = open('processed/categories.json','r')
+    categories = json.load(categoriesFile)
+    categoriesFile.close()
     city = whichCity()
-    collaborativeFiltering()
-    #items = getRecommendations(uid)
-    #presentRecommendations(uid,items)
-    '''
+    cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
+    iids = json.load(cityRestaurants)
+    cityRestaurants.close()
+    #collaborativeFiltering()
+    items = getRecommendations(uid)
+    restaurant = presentRecommendations(items)
+    moreInformation(restaurant)
+    
     while True:
         choice = menu()
         if choice == 1:
-            pass
+            uid, name = getID()
         elif choice == 2:
-            pass
+            category = getCategory()
+            categoriesFile = open('processed/categories.json','r')
+            categories = json.load(categoriesFile)
+            categoriesFile.close()
         elif choice == 3:
+            city = whichCity()
+            cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
+            iids = json.load(cityRestaurants)
+            cityRestaurants.close()
+        elif choice == 4:
+            items = getRecommendations(uid)
+            restaurant = presentRecommendations(items)
+            moreInformation(restaurant)
+        elif choice == 5:
             info()
-    '''
 
 # Resources:
 '''
