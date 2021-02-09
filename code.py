@@ -25,6 +25,15 @@
 
 # restaurants on yelp
 
+# json files I use:
+# user_ids
+# business_ids
+# covid
+# categories
+# cities/city_ids
+# usefulReviews.csv
+
+
 import os
 import json
 from collections import defaultdict
@@ -39,7 +48,7 @@ import numpy as np
 import math
 import pickle
 import time
-
+'''
 def collaborativeFiltering(): # code adapted from https://github.com/wwwbbb8510/baseline-rs
     ratings = pd.read_csv('processed/usefulReviews.csv', encoding='"ISO-8859-1"')
     ratings = ratings.sample(frac=0.01)
@@ -179,7 +188,7 @@ def get_top_n(predictions, n=10):
         user_ratings.sort(key=lambda x: x[1], reverse=True)
         top_n[uidLocal] = user_ratings[:n]
     return top_n
-
+'''
 def getRecommendations(uid):
     file_path = os.path.expanduser('processed/usefulReviews.csv')
     reader = Reader(line_format='user item rating timestamp', sep=',')
@@ -189,7 +198,7 @@ def getRecommendations(uid):
     trainset = data.build_full_trainset()
     algo = SVD()
     #start = time.time()
-    print('Getting recommendations...')
+    print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
     algo.fit(trainset)
     #end = time.time()
     #print(end-start)
@@ -229,7 +238,6 @@ def presentRecommendations(items): # takes items from recommender and
         i += 1
     table.add_rows(rows)
     print()
-    print('Here are some {} restaurants in {} that you might like:'.format(category,city))
     print(table.draw() + '\n')
     print('Select a restaurant to see more information')
     check = False
@@ -247,7 +255,7 @@ def moreInformation(restaurant):
     if restaurant == None:
         return
     business = businesses[restaurant]
-    name = business['name']
+    restaurantName = business['name']
     address = '{}\n{}, {}'.format(business['address'],business['city'],business['state'])
     features = covidFeatures[restaurant]
     delivery = features['delivery or takeout']
@@ -261,7 +269,7 @@ def moreInformation(restaurant):
     table.set_cols_align(['l','c','c','c','c','c'])
     table.set_cols_valign(['m','m','m','m','m','m'])
     table.add_rows([['Name','Address','Stars','No. reviews','Delivery or Takeout','Grubhub'],
-    [name,address,business['stars'],business['review_count'],delivery,grubhub]])
+    [restaurantName,address,business['stars'],business['review_count'],delivery,grubhub]])
     print(table.draw())
     print()
     # add covid information here as well
