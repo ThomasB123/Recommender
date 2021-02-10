@@ -1,13 +1,37 @@
 
-explain what to run first and any other instructions like imports 
+How to run:
+1. Open a terminal and navigate to this directory
+2. Run 'python code.py'
+3. Enter a User ID, you can pick one from the list below (but any valid ID will work)
 
-Here are some possible user IDs to user:
-1. Jennifer , CxDOIDnH8gp9KXzpBHJYXw , 1108
-2. Brad , ELcQDlf69kb-ihJfxZyL0A , 904
-3. Stefany , bLbSNkLggFnqwNNzzq-Ijw , 782
-4. Jennifer , d_TBs6J3twMy9GChqUEXkg , 610
-5. Michael , U4INQZOPSUaj8hMjLlZ3KA , 606
-6. Karen , DK57YibC5ShBmqQl97CKog , 571
-7. Norm , PKEzKWv_FktMm2mGPjwd0Q , 558
-8. Jennifer , cMEtAiW60I5wE_vLfTxoJQ , 527
-9. Pepper , V-BbqKqO8anwplGRx9Q5aQ , 506
+
+Here are some user IDs you can use:
+
+1. CxDOIDnH8gp9KXzpBHJYXw
+2. ELcQDlf69kb-ihJfxZyL0A
+3. bLbSNkLggFnqwNNzzq-Ijw
+4. d_TBs6J3twMy9GChqUEXkg
+5. U4INQZOPSUaj8hMjLlZ3KA
+6. DK57YibC5ShBmqQl97CKog
+7. PKEzKWv_FktMm2mGPjwd0Q
+8. cMEtAiW60I5wE_vLfTxoJQ
+9. V-BbqKqO8anwplGRx9Q5aQ
+
+I picked these users because they have given the greatest number of reviews of restaurants. 
+Thus I avoid the cold-start problem.
+
+
+Python modules imported:
+1. json
+2. surprise
+3. texttable
+4. pandas
+
+
+Processed data files used:
+1. user_ids.json
+2. business_ids.json
+3. covid.json
+4. categories.json
+5. cities/*city*_ids.json (10 files)
+6. usefulReviews.csv

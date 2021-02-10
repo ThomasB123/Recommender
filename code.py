@@ -25,18 +25,11 @@
 
 # restaurants on yelp
 
-# json files I use:
-# user_ids
-# business_ids
-# covid
-# categories
-# cities/city_ids
-# usefulReviews.csv
 
 
-import os
+#import os
 import json
-from collections import defaultdict
+#from collections import defaultdict
 #from surprise import BaselineOnly
 from surprise import SVD
 from surprise import Dataset
@@ -44,10 +37,10 @@ from surprise import Reader
 #from surprise.model_selection import cross_validate
 import texttable
 import pandas as pd
-import numpy as np
-import math
-import pickle
-import time
+#import numpy as np
+#import math
+#import pickle
+#import time
 '''
 def collaborativeFiltering(): # code adapted from https://github.com/wwwbbb8510/baseline-rs
     ratings = pd.read_csv('processed/usefulReviews.csv', encoding='"ISO-8859-1"')
@@ -190,7 +183,7 @@ def get_top_n(predictions, n=10):
     return top_n
 '''
 def getRecommendations(uid):
-    file_path = os.path.expanduser('processed/usefulReviews.csv')
+    file_path = 'processed/usefulReviews.csv'
     reader = Reader(line_format='user item rating timestamp', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True)
@@ -224,21 +217,30 @@ def hybrid():
     # break ties by looking at review count, accepts credit cards, price range, attire, alcohol, 
     # reservations, takeout, good for groups, ambience, good for kids, drive thru, wifi, parking, 
     # caters, delivery, noise level, outdoor seating, has tv, good for meal, categories, hours
+    # all from business.json or business_ids.json
+    # TODO
+    # implement hybrid properly, look at lectures to figure out how to do it 
+    # nearest neighbour for e.g. best night or ambience that person likes the most
+    # certain features that person seems to prefer?
+    # is SVD time-aware?
+    # comment code
+    # write paper
 
 def presentRecommendations(items): # takes items from recommender and 
     if items == []:
         print('There are no {} restaurants in {}'.format(category,city))
         return None
     table = texttable.Texttable()
-    table.set_cols_dtype(['i','t','t','t']) # specify data types
-    table.set_cols_align(['c','l','c','c']) # align columns horizontally
-    table.set_cols_valign(['m','m','m','m']) # align columns vertically
-    rows = [['Number','Name', 'City', 'Stars']] # titles of columns
+    table.set_cols_dtype(['i','t','t','t','t']) # specify data types
+    table.set_cols_align(['c','l','c','c','c']) # align columns horizontally
+    table.set_cols_valign(['m','m','m','m','m']) # align columns vertically
+    rows = [['Number','Name', 'City', 'Avg. Rating','Your Pred. Rating']] # titles of columns
     i = 1
     for item in items:
         iid = item[0]
+        predRating = f'{item[1]:.2f}' # round to 2 d.p
         business = businesses[iid]
-        rows.append([i,business['name'],business['city'],business['stars']])
+        rows.append([i,business['name'],business['city'],business['stars'],predRating])
         i += 1
     table.add_rows(rows)
     print()
@@ -253,9 +255,10 @@ def presentRecommendations(items): # takes items from recommender and
                 check = True
         except:
             pass
-    return items[choice-1][0]
+    chosen = items[choice-1]
+    return chosen[0],f'{chosen[1]:.2f}'
 
-def moreInformation(restaurant):
+def moreInformation(restaurant,predRating):
     if restaurant == None:
         return
     business = businesses[restaurant]
@@ -269,11 +272,11 @@ def moreInformation(restaurant):
     message = features['Covid Banner']
     closed = features['Temporary Closed Until']
     table = texttable.Texttable()
-    table.set_cols_dtype(['t','t','t','t','t','t'])
-    table.set_cols_align(['l','c','c','c','c','c'])
-    table.set_cols_valign(['m','m','m','m','m','m'])
-    table.add_rows([['Name','Address','Stars','No. reviews','Delivery or Takeout','Grubhub'],
-    [restaurantName,address,business['stars'],business['review_count'],delivery,grubhub]])
+    table.set_cols_dtype(['t','t','t','t','t','t','t'])
+    table.set_cols_align(['l','c','c','c','c','c','c'])
+    table.set_cols_valign(['m','m','m','m','m','m','m'])
+    table.add_rows([['Name','Address','No. Reviews','Avg. Rating','Your Pred. Rating','Delivery or Takeout','Grubhub'],
+    [restaurantName,address,business['review_count'],business['stars'],predRating,delivery,grubhub]])
     print(table.draw())
     print()
     # add covid information here as well
@@ -348,7 +351,7 @@ q. Quit
     ''')
     check = False
     while not check:
-        choice = input('Your choice > ').strip()
+        choice = input('Your Choice > ').strip()
         try:
             choice = int(choice)
             if 1 <= choice <= 5:
@@ -376,7 +379,7 @@ Which city are you closest to, {}?
     print()
     check = False
     while not check:
-        choice = input('Your choice > ').strip()
+        choice = input('Your Choice > ').strip()
         try:
             choice = int(choice)
             if 1 <= choice <= len(cities):
@@ -398,7 +401,7 @@ What type of food are you looking for, {}?
     print()
     check = False
     while not check:
-        choice = input('Your choice > ').strip()
+        choice = input('Your Choice > ').strip()
         try:
             choice = int(choice)
             if 1 <= choice <= len(categories):
@@ -444,8 +447,8 @@ if __name__ == '__main__':
     items = getRecommendations(uid)
     moreInfo = True
     while moreInfo:
-        restaurant = presentRecommendations(items)
-        moreInfo = moreInformation(restaurant)
+        restaurant,predRating = presentRecommendations(items)
+        moreInfo = moreInformation(restaurant,predRating)
     
     while True:
         choice = menu()
@@ -465,8 +468,8 @@ if __name__ == '__main__':
             items = getRecommendations(uid)
             moreInfo = True
             while moreInfo:
-                restaurant = presentRecommendations(items)
-                moreInfo = moreInformation(restaurant)
+                restaurant,predRating = presentRecommendations(items)
+                moreInfo = moreInformation(restaurant,predRating)
         elif choice == 5:
             info()
 

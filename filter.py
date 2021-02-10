@@ -164,9 +164,9 @@ def dropText():
     #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
     #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
     #panda.to_csv('processed/mostActiveReviews.csv',index=False)
-    panda = pd.read_json('processed/usefulReviews.json',lines=True)
+    panda = pd.read_json('processed/recentReviews.json',lines=True)
     panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
-    panda.to_csv('processed/usefulReviews.csv',index=False)
+    panda.to_csv('processed/recentReviews.csv',index=False)
     '''
     inFile = open('processed/review.json','r')
     outFile = open('processed/review.csv','w')
@@ -229,6 +229,16 @@ def filterUsefulReviews():
     inFile.close()
     outFile.close()
 
+def filterRecentReviews():
+    inFile = open('processed/review.json','r')
+    outFile = open('processed/recentReviews.json','w')
+    for line in inFile:
+        review = json.loads(line)
+        if review['date'][:4] == '2019':
+            outFile.write(line)
+    inFile.close()
+    outFile.close()
+
 def splitReviews():
     inFile = open('processed/usefulReviews.json','r')
     closestCity = open('processed/closestCity.json','r')
@@ -275,6 +285,20 @@ def formatCovidFeatures():
     inFile.close()
     outFile.close()
 
+def closedCovid():
+    lastFile = open('processed/covid.json','r')
+    covid = json.load(lastFile)
+    lastFile.close()
+    inFile = open('processed/business.json','r')
+    outFile = open('processed/open2019Business.json','w')
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        if covid[ID]['Temporary Closed Until'] == 'FALSE':
+            outFile.write(line)
+    inFile.close()
+    outFile.close()
+
 
 
 #ids = getIDs()
@@ -289,15 +313,28 @@ def formatCovidFeatures():
 #mostReviews()
 #filterMostActiveReviews()
 #uniqueRestaurants()
-#dropText()
+dropText()
 #splitCities()
 #splitIDs()
 #filterUsefulReviews()
+#filterRecentReviews()
 #splitReviews()
 #getCategories()
-formatCovidFeatures()
+#formatCovidFeatures()
+#closedCovid()
 
 # user features: user_id, name, review_count, yelping_since, useful, funny, cool, elite, friends, fans, average_stars, compliment_hot, compliment_more, compliment_profile, compliment_cute, compliment_list, compliment_note, compliment_plain, compliment_cool, compliment_funny, compliment_writer, compliment_photos
 
 # filter by time
 # get number of reviews in last year?
+
+'''
+inFile = open('processed/recentReviews.json','r')
+business = {}
+for line in inFile:
+    ID = json.loads(line)['business_id']
+    if ID not in business:
+        business[ID] = None
+print(len(business))
+inFile.close()
+'''
