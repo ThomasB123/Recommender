@@ -244,7 +244,13 @@ def presentRecommendations(items): # takes items from recommender and
         i += 1
     table.add_rows(rows)
     print()
-    print(table.draw() + '\n')
+    print(table.draw())
+    print('''
+These recommendations are based on: 
+    1. The opinions of other users with similar preferences to you
+    2. The city you said you were closest to ({})
+    3. The category of food you selected ({})
+    '''.format(city,category))
     print('Select a restaurant to see more information')
     check = False
     while not check:

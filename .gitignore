@@ -15,4 +15,16 @@ paper/fig1.png
 *.log
 *.synctex.gz
 paper/README
-processed
+processed/2019business.json
+processed/business.json
+processed/checkin.json
+processed/closestCity.json
+processed/covid_features.json
+processed/lastCheckin.json
+processed/numberReviews.json
+processed/open2019business.json
+processed/review.csv
+processed/review.json
+processed/tip.json
+processed/usefulReviews.json
+processed/w_matrix.pkl
