@@ -161,12 +161,9 @@ def uniqueRestaurants():
         print(len(businesses),businesses[max(businesses,key=businesses.get)])
 
 def dropText():
-    #panda = pd.read_json('processed/mostActiveReviews.json',lines=True)
-    #panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
-    #panda.to_csv('processed/mostActiveReviews.csv',index=False)
-    panda = pd.read_json('processed/recentReviews.json',lines=True)
-    panda = panda.drop(['review_id','useful','funny','cool','text'],axis=1)
-    panda.to_csv('processed/recentReviews.csv',index=False)
+    panda = pd.read_json('processed/usefulReviews.json',lines=True)
+    panda = panda.drop(['review_id','useful','funny','cool','text','date'],axis=1)
+    panda.to_csv('processed/usefulReviews.csv',index=False)
     '''
     inFile = open('processed/review.json','r')
     outFile = open('processed/review.csv','w')
@@ -327,14 +324,3 @@ dropText()
 
 # filter by time
 # get number of reviews in last year?
-
-'''
-inFile = open('processed/recentReviews.json','r')
-business = {}
-for line in inFile:
-    ID = json.loads(line)['business_id']
-    if ID not in business:
-        business[ID] = None
-print(len(business))
-inFile.close()
-'''

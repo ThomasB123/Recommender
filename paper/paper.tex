@@ -13,11 +13,10 @@
 
 \title{Designing and Developing a Personalised Recommender System}
 
-\author{\IEEEauthorblockN{Thomas Butterfield}
+\author{\IEEEauthorblockN{lrfk99}
 \IEEEauthorblockA{\textit{dept. Computer Science} \\
 \textit{Durham University}\\
-Durham, United Kingdom \\
-thomas.butterfield@durham.ac.uk}
+Durham, United Kingdom}
 }
 
 \maketitle
@@ -128,11 +127,21 @@ How to evaluate
 
 \subsection{Input interface}
 The system has a command line based interface, so all user input of the input is given via the command line. 
-The system recognises the active user by their unique user ID, some example IDs are provided in the README.txt 
+The system recognises the active user by their unique user ID, some example IDs are provided in the 'README.txt' 
 file for testing and demonstration purposes. 
-Only explicit user data is gathered in order to make the system more explainable and transparent. 
+Only explicit user data is gathered in order to make the system more explainable and transparent, 
+and users are made aware of which data is collected, how it is collected, and for which purposes. 
+This data includes the user's nearest city (of the 10 available) and the type of food that 
+they are in the mood for. 
+The user is able to change these choices from the main menu, as well as switch to a different user 
+for testing purposes. 
+When the user is presented with a list of recommendations, they can then choose one that they want 
+to see more information about and from here they can leave a rating, return to the list, or return to 
+the main menu. 
+User profiles can be updated by giving a rating of a restaurant through the system. 
+Any rating given will affect future recommendations given by the system to that user 
+and to other similar users. 
 
-The input interface is the command line.
 The program offers users opportunities to input information about themselves,
 as well as make choices from a selection of items which the system provides or suggests.
 

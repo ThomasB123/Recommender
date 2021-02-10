@@ -184,7 +184,7 @@ def get_top_n(predictions, n=10):
 '''
 def getRecommendations(uid):
     file_path = 'processed/usefulReviews.csv'
-    reader = Reader(line_format='user item rating timestamp', sep=',')
+    reader = Reader(line_format='user item rating', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True)
 
@@ -230,6 +230,13 @@ def presentRecommendations(items): # takes items from recommender and
     if items == []:
         print('There are no {} restaurants in {}'.format(category,city))
         return None
+    print('''
+These recommendations are based on: 
+    1. Your previous ratings of these restaurants (if any)
+    2. The opinions of other users with similar preferences to you
+    3. The city you said you were closest to ({})
+    4. The category of food you selected ({})
+    '''.format(city,category))
     table = texttable.Texttable()
     table.set_cols_dtype(['i','t','t','t','t']) # specify data types
     table.set_cols_align(['c','l','c','c','c']) # align columns horizontally
@@ -243,15 +250,9 @@ def presentRecommendations(items): # takes items from recommender and
         rows.append([i,business['name'],business['city'],business['stars'],predRating])
         i += 1
     table.add_rows(rows)
-    print()
     print(table.draw())
-    print('''
-These recommendations are based on: 
-    1. The opinions of other users with similar preferences to you
-    2. The city you said you were closest to ({})
-    3. The category of food you selected ({})
-    '''.format(city,category))
-    print('Select a restaurant to see more information')
+    print()
+    print('Select a restaurant to see more information or rate it: (1-{})'.format(len(items)))
     check = False
     while not check:
         choice = input('Your Choice > ').strip()
@@ -308,40 +309,58 @@ def moreInformation(restaurant,predRating):
         print()
     print('''
 What do you want to do?
-1. See the list again
-2. Return to main menu
-    ''')
+1. Give a rating of {}
+2. See the list again
+3. Return to main menu
+    '''.format(restaurantName))
     while True:
         choice = input('Your Choice > ').strip()
         try:
             choice = int(choice)
             if choice == 1:
+                print('''
+How many stars do you want to give {}? (1-5)
+                '''.format(restaurantName))
+                while True:
+                    stars = input('Your Rating > ').strip()
+                    try:
+                        stars = int(stars)
+                        if 1 <= stars <= 5:
+                            reviews = open('processed/usefulReviews.csv','a')
+                            reviews.write('{},{},{}\n'.format(uid,restaurant,stars))
+                            reviews.close()
+                            break
+                    except:
+                        pass
+                print('\nYou gave {} a rating of {} stars\n'.format(restaurantName,stars))
+                input('Press enter to return to main menu ')
+                return False
+            if choice == 2:
                 return True
-            elif choice == 2:
+            elif choice == 3:
                 return False
         except:
             pass
-
-def getPreferences():
-    pass
-
 
 def info():
     print('''
 Which data do we collect from you?
 
-    We collect your choices.
+    We collect 3 things from you:
+        1. The city you specify
+        2. The type of food you specify
+        3. Any ratings you give
 
 How is it collected?
 
-    From the choices you input here.
+    Explicitly, from the choices you make when prompted.
 
 For what purpose?
 
-    In order for us to suggest things you might like.
+    In order for us to suggest restaurants that you might like.
 
     ''')
-    input('Press enter to return ')
+    input('Press enter to return to main menu ')
 
 
 def menu():
