@@ -58,14 +58,66 @@ The data for my recommender system was generated from the Yelp Open Dataset \cit
 This is a subset of all the businesses, reviews, and user data on Yelp, formatted as JSON files. 
 The dataset includes approximately 8,000,000 reviews of 200,000 businesses by 2,000,000 users, as well as 
 additional Covid-19 related features of each business such as whether they now offer takeout or delivery. 
-The dataset also includes approximately 200,000 photos but I these are not relevant to my application, since 
+There are 3 sections of the dataset, with 5 JSON files in the main dataset, 1 in the photos section, and 
+1 in the covid section. 
+The $business.json$ file contains business data including location data, attributes, and categories. 
+$review.json$ contains full review text data including the $user\_id$ that wrote the review and the $business\_id$ 
+that the review is written for. 
+The file $user.json$ holds every user's first name along with other data adn metadata which I don't use \cite{YelpDataset}. 
+The data files $checkin.json$ and $tip.json$ are not used in my system. 
+The dataset also includes approximately 200,000 photos but these are not relevant to my application, since 
 the interface is command line only, so they were discarded. 
-Every businesses in the dataset is in 1 of 10 metropolitan areas in the USA and Canada 
+The covid related data from $covid\_features.json$ contains additional information about each business with regards to 
+the measures they have taken due to the pandemic, such as offering delivery or takeout options or a 
+special message for customers. 
+Every business in the dataset is in 1 of 10 metropolitan areas in the USA and Canada 
 (Montreal, Calgary, Toronto, Pittsburgh, Charlotte, Urbana-Champaign, Phoenix, Las Vegas, Madison, and Cleveland) \cite{YelpDataset}. 
 
 \subsection{Data preparation and feature selection}
+The dataset is provided in JSON format, but in such a way that every entry is its own JSON on its own line, 
+which does not lend well to fast lookups by the main program. 
+Therefore it was necessary to convert every file I used in the system into a typical JSON file, such that it could 
+be loaded as a python dictionary with the lookup key being either the uniquely identifying $business\_id$ or 
+$user\_id$ depending on the case. 
+This allows for extremely fast data lookups in the system. 
+It was of course also necessary to filter the list of all Yelp businesses down to just the restaurants. 
+I further narrowed the list of restaurants by selecting only those which fit into one or more of the top 12 
+categories in terms of number of restaurants (American, Mexican, Italian, Chinese, Seafood, Japanese, Canadian, 
+Mediterranean, Indian, Thai, Middle Eastern, Vietnamese, in that order). 
+Since the user selects one of these 12 options for categories of restaurants they want to find, they will 
+never be recommended a restaurant which doesn't fit at least one of these categories. 
+I also ensured that every restaurant was still open and had at least 1 check-in in 2019 (the last year that 
+data was available). 
+This left 20,565 restaurants which could be recommended to the user, which needed to be split into their respective 
+metropolitan areas by using the latitude and longitude values of the businesses and of the centres of each city. 
+The list of reviews pertaining to these restaurants was then filtered down
+I also split by nearest city, and filtered only useful reviews
+This was done using the $categories$ attribute of the $business$ JSON file. 
+
 The business data was filtered down to businesses that contain 'Restaurants' as one of their listed 
 categories
+getIDs
+filterReviews
+lastCheckin
+recentCheckin
+toCSV
+CovidDuplicates
+getUserIDs
+mostActiveUsers
+numberRestaurantReviews
+mostReviews
+filterMostActiveReviews
+uniqueRestaurants
+dropText
+splitCities
+splitIDs
+filterUsefulReviews
+filterRecentReviews
+splitReviews
+getCategories
+formatCovidFeatures
+closedCovid
+
 The ratings data was 
 (20,565 restaurants)
 Prepare data
@@ -123,7 +175,7 @@ Cascade with knowledge-based and collaborative
 
 
 \subsection{Recommendation techniques/algorithms}
-The first recommender system is collaborative filtering.
+The first recommender system is collaborative filtering. reference https://surpriselib.com/
 I am using item-based collaborative filtering, since the number of users is larger than the number of items 
 (1,968,703 users vs 209,393 businesses in the entire dataset), this gives greater accuracy of predictions. 
 In this case the list of available items does not change, so a user-based method would be unnecessary. 
@@ -164,6 +216,7 @@ Any rating given will affect future recommendations given by the system to that 
 and to other similar users. 
 
 \subsection{Recommendation algorithm}
+The idea is to find restaurants in a new city which are similar to those in another city that the user likes, just like Entree. 
 I used a model-based approach to Collaborative Filtering based on matrix factorisation. 
 The specific model is Single Value Decomposition (SVD), which was popularised by Simon Funk during the Netflix Prize. 
 In my program, I fit the algorithm on a training set, and then for every restaurant of the specified category 
@@ -207,6 +260,8 @@ What can it not do?
 
 \subsection{Further developments}
 What could I do in the future \cite{5284958}. 
+Implement the idea of particular categories being closer some than others. 
+Specify price range and/or consider price when comparing similarities of restaurants. 
 
 
 \bibliographystyle{IEEEtran}

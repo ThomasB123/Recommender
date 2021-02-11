@@ -17,6 +17,7 @@ paper/fig1.png
 paper/README
 processed/2019business.json
 processed/business.json
+processed/categories.json
 processed/checkin.json
 processed/closestCity.json
 processed/covid_features.json

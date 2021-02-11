@@ -1,16 +1,5 @@
 
-# first step, look at dataset, decide what services to include, start preprocessing data
-# then build architecture/scheme
-
-# personalised recomendations, not just demographic or generic
-# look at the individual user and their preferences and needs, context, interests
-# justify choice of models and justify all choices
 # you must compare the other systems using evaluation metrics but actual performance of recommender system is not important
-
-# command line interface
-# allow user to specify their name (or other identifying property), so model allows distinct users and gives personalised recomendations
-
-# marked on explainability
 
 # video is about how well you can present your product. Voice over video
 # explain what it is, how it works, display the best of its features, demo main functionality
@@ -23,9 +12,7 @@
 #   limitations
 # in order to get an idea of common or good or useful combinations of systems
 
-# restaurants on yelp
-
-
+# restaurants
 
 import json
 #from surprise import BaselineOnly
@@ -37,7 +24,7 @@ import texttable
 import pandas as pd
 
 def getRecommendations(uid):
-    file_path = 'processed/usefulReviews.csv'
+    file_path = 'processed/reviews.csv'
     reader = Reader(line_format='user item rating', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True)
@@ -51,7 +38,8 @@ def getRecommendations(uid):
     #print(end-start)
     suggestions = {}
     for iid in iids:
-        if iid in categories and category in categories[iid]: # include all reviews?
+        if iid in businesses and category in businesses[iid]['categories']:
+            #if iid in categories and category in categories[iid]: # include all reviews?
             pred = algo.predict(uid,iid)#,verbose=True)#,r_ui=4, verbose=True)
             suggestions[pred[1]] = pred[3]
     suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True)
@@ -180,7 +168,7 @@ How many stars do you want to give {}? (1-5)
                     try:
                         stars = int(stars)
                         if 1 <= stars <= 5:
-                            reviews = open('processed/usefulReviews.csv','a')
+                            reviews = open('processed/reviews.csv','a')
                             reviews.write('{},{},{}\n'.format(uid,restaurant,stars))
                             reviews.close()
                             break
@@ -245,8 +233,7 @@ q. Quit
     return choice
 
 def welcome():
-    print('Welcome to the hybrid recommender system using the Yelp dataset!')
-    print()
+    print('Welcome to the hybrid recommender system using the Yelp dataset!\n')
 
 def whichCity():
     cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte',
@@ -306,10 +293,10 @@ def getID():
 
 if __name__ == '__main__':
     welcome()
-    usersFile = open('processed/user_ids.json','r') # load these 3 json files here to save time later
+    usersFile = open('processed/users.json','r') # load these 3 json files here to save time later
     users = json.load(usersFile)
     usersFile.close()
-    businessesFile = open('processed/business_ids.json','r')
+    businessesFile = open('processed/businesses.json','r')
     businesses = json.load(businessesFile)
     businessesFile.close()
     covidFile = open('processed/covid.json','r')
@@ -318,14 +305,10 @@ if __name__ == '__main__':
 
     uid, name = getID()
     category = getCategory()
-    categoriesFile = open('processed/categories.json','r')
-    categories = json.load(categoriesFile)
-    categoriesFile.close()
     city = whichCity()
     cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
     iids = json.load(cityRestaurants)
     cityRestaurants.close()
-    #collaborativeFiltering()
     items = getRecommendations(uid)
     moreInfo = True
     while moreInfo:
@@ -338,9 +321,6 @@ if __name__ == '__main__':
             uid, name = getID()
         elif choice == 2:
             category = getCategory()
-            categoriesFile = open('processed/categories.json','r')
-            categories = json.load(categoriesFile)
-            categoriesFile.close()
         elif choice == 3:
             city = whichCity()
             cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
@@ -354,14 +334,3 @@ if __name__ == '__main__':
                 moreInfo = moreInformation(restaurant,predRating)
         elif choice == 5:
             info()
-
-# Resources:
-'''
-https://www.yelp.com/dataset
-https://www.yelp.com/dataset/documentation/faq
-https://github.com/Yelp/dataset-examples/blob/master/json_to_csv_converter.py
-https://towardsdatascience.com/converting-yelp-dataset-to-csv-using-pandas-2a4c8f03bd88
-https://www.kaggle.com/yelp-dataset/yelp-dataset?select=yelp_academic_dataset_business.json
-https://github.com/Yelp/dataset-examples/issues/43
-https://surpriselib.com/
-'''

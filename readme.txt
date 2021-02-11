@@ -1,7 +1,7 @@
 
 How to run:
 1. Open a terminal and navigate to this directory
-2. Run 'python code.py'
+2. Run 'python RS.py'
 3. Enter a User ID, you can pick one from the list below (but any valid ID will work)
 4. Enter other information
 5. Allow up to 20 seconds for recommendations to be generated
@@ -31,9 +31,12 @@ Python modules imported:
 
 
 Processed data files used:
-1. user_ids.json
-2. business_ids.json
+1. users.json
+2. businesses.json
 3. covid.json
-4. categories.json
-5. cities/*city*_ids.json (10 files)
-6. usefulReviews.csv
+4. cities/*city*_ids.json (10 files)
+5. reviews.csv
+
+The file 'filter.py' contains functions that I used for data preparation, 
+it is not required for the system to run but I have included it to demonstrate 
+my extensive work with the data. 
