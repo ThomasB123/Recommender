@@ -60,7 +60,7 @@ The dataset includes approximately 8,000,000 reviews of 200,000 businesses by 2,
 additional Covid-19 related features of each business such as whether they now offer takeout or delivery. 
 There are 3 sections of the dataset, with 5 JSON files in the main dataset, 1 in the photos section, and 
 1 in the covid section. 
-The $business.json$ file contains business data including location data, attributes, and categories. 
+The $business.json$ file contains business data including location data, attributes, and cuisine. 
 $review.json$ contains full review text data including the $user\_id$ that wrote the review and the $business\_id$ 
 that the review is written for. 
 The file $user.json$ holds every user's first name along with other data adn metadata which I don't use \cite{YelpDataset}. 
@@ -84,11 +84,11 @@ $user\_id$ depending on the case.
 This allows for extremely fast data lookups in the system. 
 It was of course also necessary to filter the list of all Yelp businesses down to just the restaurants. 
 I further narrowed the list of restaurants by selecting only those which fit into one or more of the top 12 
-categories in terms of number of restaurants (American, Mexican, Italian, Chinese, Seafood, Japanese, Canadian, 
+cuisines in terms of number of restaurants (American, Mexican, Italian, Chinese, Seafood, Japanese, Canadian, 
 Mediterranean, Indian, Thai, Middle Eastern, Vietnamese, in that order). 
-Since the user selects one of these 12 options for categories of restaurants they want to find, they will 
+Since the user selects one of these 12 options for cuisines they want to find, they will 
 never be recommended a restaurant which doesn't fit at least one of these categories. 
-I chose to use the top 12 categories because it's enough to provide a wide variety of options to the user without 
+I chose to use the top 12 cuisines because it's enough to provide a wide variety of options to the user without 
 being so many that the user is overwhelmed by the amount. 
 I also ensured that every restaurant was still open and had at least 1 check-in in 2019 (the last year that 
 data was available). 
@@ -133,8 +133,23 @@ This system allows the user to make ratings through the user interface, providin
 the system in terms of how new ratings affect the current user's recommendations as well as those of other similar users. 
 
 \subsection{Evaluation methods}
-How to evaluate
-
+The evaluation of the system was done using offline experiments. 
+The accuracy of ratings predictions was evaluated using Mean Absolute Error (MAE), which is calculated by the 
+following equation:
+\begin{equation}
+    MAE = \frac{1}{|\mathcal{T}|} \sum_{(u,i)\in{\mathcal{T}}} {|\widehat{r}_{ui} - r_{ui}|}
+\end{equation}
+This metric is appropriate for this RS since it can handle large errors on a few items, which may occur in this system 
+due to some rare skewed ratings. 
+The MAE of this system is around 0.99. 
+Measuring the accuracy of usage predictions is done using precision, calculated by: 
+\begin{equation}
+    \frac{TP}{TP+FP}
+\end{equation}
+where TP and FP correspond to True Positive and False Positive respectively. 
+This is because the number of recommendations is predefined and not very large (8 items). 
+The precision of this system is 0.125, since 1 out of the 8 items is a true positive. 
+Novelty, diversity, coverage
 
 \section{Implementation}
 
@@ -178,13 +193,10 @@ This minimisation is performed by stochastic gradient descent:
 \end{align}
 where $e_{ui} = r_{ui} - \widehat{r}_{ui}$. 
 These steps are performed over all the ratings of the trainset and repeated 20 times \cite{SVD}. 
-
-The idea is to find restaurants in a new city which are similar to those in another city that the user likes, just like Entree. 
-I used a model-based approach to collaborative-filtering based on matrix factorisation. 
-The specific model is Single Value Decomposition (SVD), which was popularised by Simon Funk during the Netflix Prize. 
-In my program, I fit the algorithm on a training set, and then for every restaurant of the specified category 
-and in the specified city, I predict what the user would rate that restaurant. 
-Then I sort those restaurants by their score and take the top 8 to present to the user. 
+The knowledge-based aspect of the algorithm produces recommendations based on the explicit location and cuisine 
+preferences of the user. 
+These are then cascaded down to the CF algorithm, which assigns each a predicted rating based on the ratings data. 
+The 8 recommendations with the highest predicted rating are then presented to the user. 
 
 \subsection{Output interface}
 Recommendations and prediction scores are presented to the user via the command line interface and using an ASCII table. 
@@ -213,10 +225,24 @@ further adds to the explainability and transparency.
 \section{Evaluation results}
 
 \subsection{Comparison against baseline implementation}
-Compare vs generic suggestions
+Cross validation with 5 folds was carried out on both the SVD system and a baseline implementation. 
+The 5 Mean Absolute Errors for the SVD system had a mean of 0.9962 and a standard deviation of 0.0033. 
+The MAE results for the baseline implementation had a mean of 1.0091 and a standard deviation of 0.0056. 
+This shows that when compared to a baseline implementation, the SVD system does perform better, generating more 
+accurate predictions, however the difference is not particularly large. 
 
 \subsection{Comparison against hybrid recommenders in related studies}
-Read some papers
+The Entree restaurant recommender system is an example of a cascade style hybrid recommender system which 
+uses both knowledge-based and collaborative-filtering methods to help users find a restaurant they might like in 
+a city they've never been to before \cite{burke1999integrating,burke2000knowledge,burke2002hybrid,burke2007hybrid}. 
+This is very similar to the way my system works, with the biggest difference being the vastly greater amount of 
+knowledge engineering that has gone into Entree. 
+This additional knowledge is used in Entree, and other FindMe style systems, to give more accurate similarity assessments 
+of restaurants by considering factors such as price and quality of experience as well as location and cuisine, 
+and by arranging these factors hierarchically. 
+For example, Entree arranges these as: cuisine, price, quality of experience, others, but other systems allow the 
+user to specify this order themselves. 
+This is part of the reason why Entree would outperform this system. 
 
 \subsection{Ethical issues}
 People's personal data
@@ -229,7 +255,7 @@ What can it not do?
 
 \subsection{Further developments}
 What could I do in the future \cite{5284958}. 
-Implement the idea of particular categories being closer some than others. 
+Implement the idea of particular cuisines being closer some than others. 
 Specify price range and/or consider price when comparing similarities of restaurants. 
 Include demographic information
 

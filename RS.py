@@ -15,27 +15,32 @@
 # restaurants
 
 import json
-#from surprise import BaselineOnly
 from surprise import SVD
 from surprise import Dataset
 from surprise import Reader
-#from surprise.model_selection import cross_validate
 import texttable
 import pandas as pd
+from surprise import BaselineOnly
+from surprise.model_selection import cross_validate
+from surprise.model_selection import train_test_split
+from surprise import accuracy
 
 def getRecommendations(uid):
     file_path = 'processed/reviews.csv'
     reader = Reader(line_format='user item rating', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
-    #cross_validate(BaselineOnly(), data, verbose=True)
-
-    trainset = data.build_full_trainset()
+    cross_validate(BaselineOnly(), data, verbose=True)
+    #algo = BaselineOnly()
+    #trainset = data.build_full_trainset()
+    #trainset,testset = train_test_split(data, test_size=.25) # for evaluation purposes
     algo = SVD()
-    #start = time.time()
+    cross_validate(algo,data,measures=['RMSE','MAE'], cv=5, verbose=True)
+    exit()
     print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
     algo.fit(trainset)
-    #end = time.time()
-    #print(end-start)
+    predictions = algo.test(testset)
+    accuracy.mae(predictions)
+    exit()
     suggestions = {}
     for iid in iids:
         if iid in businesses and category in businesses[iid]['categories']:
@@ -43,14 +48,7 @@ def getRecommendations(uid):
             pred = algo.predict(uid,iid)#,verbose=True)#,r_ui=4, verbose=True)
             suggestions[pred[1]] = pred[3]
     suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True)
-    #print(suggestions)
     return suggestions[:8] # present top 8 restaurants
-    #testset = trainset.build_anti_testset()
-    #predictions = algo.test(testset)
-
-    #top_n = get_top_n(predictions, n=8) # get top 8 recommendations
-    #print(top_n.items())
-    #return top_n.items()
 
 def hybrid():
     pass
