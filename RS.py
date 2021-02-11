@@ -79,7 +79,7 @@ These recommendations are based on:
     3. The city you said you were closest to ({})
     4. The category of food you selected ({})
     '''.format(city,category))
-    table = texttable.Texttable()
+    table = texttable.Texttable(max_width=100)
     table.set_cols_dtype(['i','t','t','t','t']) # specify data types
     table.set_cols_align(['c','l','c','c','c']) # align columns horizontally
     table.set_cols_valign(['m','m','m','m','m']) # align columns vertically
@@ -120,7 +120,7 @@ def moreInformation(restaurant,predRating):
     grubhub = 'Yes' if grubhub=='TRUE' else 'No'
     message = features['Covid Banner']
     closed = features['Temporary Closed Until']
-    table = texttable.Texttable()
+    table = texttable.Texttable(max_width=100)
     table.set_cols_dtype(['t','t','t','t','t','t','t'])
     table.set_cols_align(['l','c','c','c','c','c','c'])
     table.set_cols_valign(['m','m','m','m','m','m','m'])
