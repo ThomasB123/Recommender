@@ -34,7 +34,7 @@ Processed data files used:
 1. users.json
 2. businesses.json
 3. covid.json
-4. cities/*city*_ids.json (10 files)
+4. cities/*city*.json (10 files)
 5. reviews.csv
 
 The file 'filter.py' contains functions that I used for data preparation, 

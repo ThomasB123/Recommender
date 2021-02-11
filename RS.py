@@ -143,10 +143,10 @@ def moreInformation(restaurant,predRating):
         print(table.draw())
     if closed != 'FALSE':
         print()
-        print('{} is closed temporarily until {}\n'.format(name,closed.split('T')[0]))
-    if message != 'FALSE':
+        print('{} is/was closed temporarily until {}\n'.format(restaurantName,closed.split('T')[0]))
+    if message != 'FALSE' and message != '':
         print()
-        print('Covid message from {}:'.format(name))
+        print('Covid message from {}:\n'.format(restaurantName))
         print(message)
         print()
     print('''
@@ -306,7 +306,7 @@ if __name__ == '__main__':
     uid, name = getID()
     category = getCategory()
     city = whichCity()
-    cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
+    cityRestaurants = open('processed/cities/'+city+'.json','r')
     iids = json.load(cityRestaurants)
     cityRestaurants.close()
     items = getRecommendations(uid)
@@ -323,7 +323,7 @@ if __name__ == '__main__':
             category = getCategory()
         elif choice == 3:
             city = whichCity()
-            cityRestaurants = open('processed/cities/'+city+'_ids.json','r')
+            cityRestaurants = open('processed/cities/'+city+'.json','r')
             iids = json.load(cityRestaurants)
             cityRestaurants.close()
         elif choice == 4:
