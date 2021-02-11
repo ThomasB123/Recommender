@@ -25,22 +25,39 @@ Durham, United Kingdom}
 \section{Introduction}
 
 \subsection{Domain of application}
-The domain of this application is a recommender system for bars, using the Yelp dataset.
-Decide whether I want to define the time-span for the date, 
-depends on if there is too much data from all available time period.
-I am also taking into accounts Covid-19 data when generating recommendations.
+The domain of this hybrid recommender system is restaurants, with a focus on trying new restaurants. 
+This system is built around restaurants in a particular metropolitan area which serve a particular 
+type of food. 
 
 \subsection{Related work review}
-Some related work
+Hybrid recommender systems which combine Knowledge-based (KB) and Collaborative-filtering (CF) techniques 
+are designed to combine the ability of KB techniques to give generic recommendations to new users with 
+small profiles and the strength of CF to find peer users with unexpected shared preferences. 
+This combination of techniques is particularly well suited to restaurants since a user may often be in the 
+mood for a specific type of food, such as Italian or Chinese, so they only want to see suggestions of that 
+type or restaurant, which is where the Knowledge-based recommender is helpful. 
+A Collaborative-filtering algorithm will then be able to order all the restaurants which match this 
+explicit criteria by how the user should rate them, based on the opinions of other similar users, 
+helping them to discover new restaurants to try. 
+These techniques are used in the Entree restaurant recommender system \cite{burke1999integrating,burke2000knowledge,burke2002hybrid,burke2007hybrid}. 
+In particular, Burke's 1999 paper \cite{burke1999integrating} is the first to discuss specifically using these 
+two techniques in the same cascaded style that I implement here. 
 
 \subsection{Purpose/Aim}
-The purpose of this application is to give suitable suggestions for a user to go to.
-Using information about the user such as their location and personal preferences.
+The purpose of this application is to give suitable suggestions of restaurants for a user to go to. 
+The recommended restaurants should be in the metropolitan area which the user specifies, and serve the 
+type of food that the user asks for. 
+As well as fitting this explicit criteria, the suggested restaurants should be similar to other restaurants 
+that the user has rated highly in the past and which other users with similar preferences also like. 
+The system will allow the user to add ratings of the restaurants they are recommended, and these ratings will 
+affect future suggestions the system gives for that user and other similar users. 
 
 
 \section{Methods}
 
 \subsection{Data description}
+includes 10 metropolitan areas in the USA and Canada (20,565 restaurants) as well as given consideration 
+to Covid-19 data when  which is included in the dataset. 
 The data I am using is taken from the Yelp dataset,
 it includes user reviews of different businesses and services in a specific location.
 There are 10 cities included in the dataset: Montreal, Calgary, Toronto, Pittsburgh, Charlotte, 
@@ -142,17 +159,29 @@ User profiles can be updated by giving a rating of a restaurant through the syst
 Any rating given will affect future recommendations given by the system to that user 
 and to other similar users. 
 
-The program offers users opportunities to input information about themselves,
-as well as make choices from a selection of items which the system provides or suggests.
-
 \subsection{Recommendation algorithm}
-What algorithm
+I used a model-based approach to Collaborative Filtering based on matrix factorisation. 
+The specific model is Single Value Decomposition (SVD), which was popularised by Simon Funk during the Netflix Prize. 
+In my program, I fit the algorithm on a training set, and then for every restaurant of the specified category 
+and in the specified city, I predict what the user would rate that restaurant. 
+Then I sort those restaurants by their score and take the top 8 to present to the user. 
 
 \subsection{Output interface}
-The output interface is the command line.
-The system can output recommendations for bars which the user might like,
-as well as information about how the system works and why certain suggestions were made,
-at the user's request.
+Recommendations and prediction scores are presented to the user via the command line interface and using an ASCII table. 
+I used a python module called texttable for this, since it makes the output very clear and visually appealing. 
+I chose to output the top 8 recommendations since I think this is enough variety and choice for the user to find 
+a restaurant to try, without there being too many options which might overwhelm the user. 
+If I presented more than 8 recommendations at a time, the table wouldn't fit in a single terminal output window and 
+would require the user to scroll around to read different parts of the output. 
+Since the user will be interacting with the system on a laptop or desktop computer through a command line interface, 
+an ASCII table is the most visually attractive way to present information, and the white text on a (typically) black 
+background will help accommodate users who are colourblind or who require a high-contrast interface. 
+The interface is clear enough to understand that users of all ages are able to use the system, and if a user 
+requires the text to be larger then they can increase the text size of their terminal. 
+Along with the recommended restaurants, an explanation of how these results are calculated is also provided, as 
+well as the prediction values themselves so the user can understand why they are being shown these suggestions. 
+This, along with an option in the main menu to view information about the data the system uses and how it is used, 
+further adds to the explainability and transparency. 
 
 
 \section{Evaluation results}

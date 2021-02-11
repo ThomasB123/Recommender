@@ -211,7 +211,7 @@ How is it collected?
 
 For what purpose?
 
-    In order for us to suggest restaurants that you might like.
+    In order for us to suggest more relevant restaurants that you might like.
 
     ''')
     input('Press enter to return to main menu ')
