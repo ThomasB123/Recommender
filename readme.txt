@@ -3,9 +3,11 @@ How to run:
 1. Open a terminal and navigate to this directory
 2. Run 'python code.py'
 3. Enter a User ID, you can pick one from the list below (but any valid ID will work)
+4. Enter other information
+5. Allow up to 20 seconds for recommendations to be generated
 
 
-Here are some user IDs you can use:
+Here are some user IDs you can use (and the names of the corresponding users):
 
 1. CxDOIDnH8gp9KXzpBHJYXw : Jennifer
 2. ELcQDlf69kb-ihJfxZyL0A : Brad

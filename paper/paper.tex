@@ -1,6 +1,4 @@
 \documentclass[conference]{IEEEtran}
-\IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -56,15 +54,20 @@ affect future suggestions the system gives for that user and other similar users
 \section{Methods}
 
 \subsection{Data description}
-includes 10 metropolitan areas in the USA and Canada (20,565 restaurants) as well as given consideration 
-to Covid-19 data when  which is included in the dataset. 
-The data I am using is taken from the Yelp dataset,
-it includes user reviews of different businesses and services in a specific location.
-There are 10 cities included in the dataset: Montreal, Calgary, Toronto, Pittsburgh, Charlotte, 
-Urbana-Champaign, Phoenix, Las Vegas, Madison, and Cleveland. 
-These user reviews include ratings, text feedback, and other such information.
+The data for my recommender system was generated from the Yelp Open Dataset \cite{YelpDataset}. 
+This is a subset of all the businesses, reviews, and user data on Yelp, formatted as JSON files. 
+The dataset includes approximately 8,000,000 reviews of 200,000 businesses by 2,000,000 users, as well as 
+additional Covid-19 related features of each business such as whether they now offer takeout or delivery. 
+The dataset also includes approximately 200,000 photos but I these are not relevant to my application, since 
+the interface is command line only, so they were discarded. 
+Every businesses in the dataset is in 1 of 10 metropolitan areas in the USA and Canada 
+(Montreal, Calgary, Toronto, Pittsburgh, Charlotte, Urbana-Champaign, Phoenix, Las Vegas, Madison, and Cleveland) \cite{YelpDataset}. 
 
 \subsection{Data preparation and feature selection}
+The business data was filtered down to businesses that contain 'Restaurants' as one of their listed 
+categories
+The ratings data was 
+(20,565 restaurants)
 Prepare data
 Of the 209,393 businesses in the dataset, 168,903 are still open. 
 There are 43,965 restaurants which are open and contain 'Restaurants' as one of the categories. 
@@ -132,6 +135,7 @@ Filtering reviews by city and then using CF won't work because the active user m
 in that city, so there is no way to assess similar restaurants to ones they have already rated. 
 Instead I carried out CF on all high quality reviews and produce an ordering of recommendations, which I then filter 
 by city. 
+Mention Netflix Prize and proposition of SVD, use lecture slides explanation and surprise documentation. 
 
 I am using a weighted mixed combination of these two systems in order to produce the results
 of my hybrid recommender system.
