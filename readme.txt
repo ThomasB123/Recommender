@@ -9,17 +9,17 @@ How to run:
 
 Here are some user IDs you can use (and the names of the corresponding users):
 
-1. CxDOIDnH8gp9KXzpBHJYXw : Jennifer
-2. ELcQDlf69kb-ihJfxZyL0A : Brad
-3. bLbSNkLggFnqwNNzzq-Ijw : Stefany
-4. d_TBs6J3twMy9GChqUEXkg : Jennifer
-5. U4INQZOPSUaj8hMjLlZ3KA : Michael
+1. bLbSNkLggFnqwNNzzq-Ijw : Stefany
+2. U4INQZOPSUaj8hMjLlZ3KA : Michael
+3. CxDOIDnH8gp9KXzpBHJYXw : Jennifer
+4. PKEzKWv_FktMm2mGPjwd0Q : Norm
+5. MMf0LhEk5tGa1LvN7zcDnA : Deni
 6. DK57YibC5ShBmqQl97CKog : Karen
-7. PKEzKWv_FktMm2mGPjwd0Q : Norm
-8. cMEtAiW60I5wE_vLfTxoJQ : Jennifer
-9. V-BbqKqO8anwplGRx9Q5aQ : Pepper
+7. Lfv4hefW1VbvaC2gatTFWA : DJ
+8. zFYs8gSUYDvXkb6O7YkRkw : Joyce
+9. dIIKEfOgo0KqUfGQvGikPg : Gabi
 
-I picked these users because they have given the greatest number of reviews of restaurants. 
+I picked these users because they have given the greatest number of useful reviews of restaurants. 
 Thus I avoid the cold-start problem.
 
 

@@ -296,6 +296,20 @@ def closedCovid():
     inFile.close()
     outFile.close()
 
+def getDemoIDs():
+    inFile = open('processed/usefulReviews.json','r')
+    uids = {}
+    for line in inFile:
+        review = json.loads(line)
+        uid = review['user_id']
+        if uid in uids:
+            uids[uid] += 1
+        else:
+            uids[uid] = 1
+    inFile.close()
+    print(sorted(uids.items(), key=lambda item: item[1]))
+    print(len(uids))
+
 #ids = getIDs()
 #filterRelevant()
 #lastCheckin()
@@ -317,3 +331,4 @@ def closedCovid():
 #getCategories()
 #formatCovidFeatures()
 #closedCovid()
+#getDemoIDs()
