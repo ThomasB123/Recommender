@@ -63,7 +63,7 @@ There are 3 sections of the dataset, with 5 JSON files in the main dataset, 1 in
 The $business.json$ file contains business data including location data, attributes, and cuisine. 
 $review.json$ contains full review text data including the $user\_id$ that wrote the review and the $business\_id$ 
 that the review is written for. 
-The file $user.json$ holds every user's first name along with other data adn metadata which I don't use \cite{YelpDataset}. 
+The file $user.json$ holds every user's first name along with other data and metadata which I don't use \cite{YelpDataset}. 
 The data files $checkin.json$ and $tip.json$ are not used in my system. 
 The dataset also includes approximately 200,000 photos but these are not relevant to my application, since 
 the interface is command line only, so they were discarded. 
@@ -113,7 +113,7 @@ while the collaborative-filtering system is able to find restaurants which are s
 previously rated highly. 
 So when these two systems are combined in a cascade style with the knowledge-based system as the primary recommender 
 and the collaborative-filtering system as the secondary the hybrid system can find hidden similarities between 
-restaurants in different cities very accurately. 
+restaurants in different cities accurately. 
 This method of hybrid recommender system (HRS) has been implemented as a restaurant recommender in the Entree 
 system, giving very accurate results \cite{burke1999integrating,burke2000knowledge,burke2002hybrid,burke2007hybrid}. 
 
@@ -125,7 +125,7 @@ for the city they are in and the type of food they in the mood for when using a 
 The second prediction method is a collaborative-filtering (CF) approach, specifically Single Value Decomposition (SVD) 
 matrix factorisation. 
 This approach was chosen because it scales well with large datasets, which is important since my dataset has 
-~120,000 entries. 
+roughly 120,000 entries. 
 The CF technique here also introduces an element of variability in the recommendations, such that the user 
 may not receive the same ordering of suggestions when they run the system multiple times with the same 
 KB specifications, helping the user to try new things. 
@@ -157,7 +157,7 @@ Coverage of the system is calculated by:
 \end{equation} 
 where $I_p$ is the set of restaurants which can be recommended and $I$ is the set of all restaurants. 
 In my system the coverage is ~0.32 ($\frac{20,565}{63,944}$), this is the most appropriate metric since 
-the data for previously views items does not exist, ruling out novelty and diversity metrics. 
+the data for previously viewed items does not exist, ruling out novelty and diversity metrics. 
 
 Explainability is measured holistically, by looking at the explanations given throughout the system and how 
 well they describe the purpose of the recommendations, how accurately they match the mechanisms used to 
@@ -168,9 +168,9 @@ Generally the explainability of this system is quite high with regards to all fo
 \section{Implementation}
 
 \subsection{Input interface}
-The system has a command line based interface, so all user input of the input is given via the command line. 
-The system recognises the active user by their unique user ID, some example IDs are provided in the 'README.txt' 
-file for testing and demonstration purposes. 
+The system has a command line based interface, so all user input is given via the command line. 
+The system recognises the active user by their unique user ID. 
+Some example IDs are provided in the 'README.txt' file for testing and demonstration purposes. 
 Only explicit user data is gathered in order to make the system more explainable and transparent, 
 and users are made aware of which data is collected, how it is collected, and for which purposes. 
 This data includes the user's nearest city (of the 10 available) and the type of food that 
@@ -254,8 +254,8 @@ knowledge engineering that has gone into Entree.
 This additional knowledge is used in Entree, and other FindMe style systems, to give more accurate similarity assessments 
 of restaurants by considering factors such as price and quality of experience as well as location and cuisine, 
 and by arranging these factors hierarchically. 
-For example, Entree arranges these as: cuisine, price, quality of experience, others, but other systems allow the 
-user to specify this order themselves. 
+For example, Entree arranges these as: cuisine, price, and quality of experience, in descending order of importance 
+and other systems allow the user to specify this order themselves. 
 This is part of the reason why Entree would outperform this system. 
 
 \subsection{Ethical issues}
