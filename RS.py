@@ -25,48 +25,27 @@ from surprise.model_selection import cross_validate
 from surprise.model_selection import train_test_split
 from surprise import accuracy
 
-def getRecommendations(uid):
+def getRecommendations(uid): # 
     file_path = 'processed/reviews.csv'
     reader = Reader(line_format='user item rating', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
-    cross_validate(BaselineOnly(), data, verbose=True)
+    #cross_validate(BaselineOnly(), data, verbose=True) # base line comparison
     #algo = BaselineOnly()
     #trainset = data.build_full_trainset()
     #trainset,testset = train_test_split(data, test_size=.25) # for evaluation purposes
-    algo = SVD()
     cross_validate(algo,data,measures=['RMSE','MAE'], cv=5, verbose=True)
-    exit()
+    algo = SVD()
     print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
     algo.fit(trainset)
-    predictions = algo.test(testset)
-    accuracy.mae(predictions)
-    exit()
     suggestions = {}
     for iid in iids:
-        if iid in businesses and category in businesses[iid]['categories']:
-            #if iid in categories and category in categories[iid]: # include all reviews?
-            pred = algo.predict(uid,iid)#,verbose=True)#,r_ui=4, verbose=True)
-            suggestions[pred[1]] = pred[3]
+        if iid in businesses and category in businesses[iid]['categories']: # knowledge based filtering
+            pred = algo.predict(uid,iid) # predict what user uid will rate item iid
+            suggestions[pred[1]] = pred[3] # collaborative filtering
     suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True)
     return suggestions[:8] # present top 8 restaurants
 
-def hybrid():
-    pass
-    # use namsor to get info about person from name, then use to recommend 
-    # take scores produced by SVD calculations, e.g. when there's nothing to go on
-    # break ties by looking at review count, accepts credit cards, price range, attire, alcohol, 
-    # reservations, takeout, good for groups, ambience, good for kids, drive thru, wifi, parking, 
-    # caters, delivery, noise level, outdoor seating, has tv, good for meal, categories, hours
-    # all from business.json or business_ids.json
-    # TODO
-    # implement hybrid properly, look at lectures to figure out how to do it 
-    # nearest neighbour for e.g. best night or ambience that person likes the most
-    # certain features that person seems to prefer?
-    # is SVD time-aware?
-    # comment code
-    # write paper
-
-def presentRecommendations(items): # takes items from recommender and 
+def presentRecommendations(items): # takes items from recommender and displays them in an appealing way
     if items == []:
         print('There are no {} restaurants in {}'.format(category,city))
         return None
@@ -118,7 +97,8 @@ def moreInformation(restaurant,predRating):
     grubhub = 'Yes' if grubhub=='TRUE' else 'No'
     message = features['Covid Banner']
     closed = features['Temporary Closed Until']
-    table = texttable.Texttable(max_width=100)
+    
+    table = texttable.Texttable(max_width=100) # more detailed information table
     table.set_cols_dtype(['t','t','t','t','t','t','t'])
     table.set_cols_align(['l','c','c','c','c','c','c'])
     table.set_cols_valign(['m','m','m','m','m','m','m'])
@@ -126,8 +106,8 @@ def moreInformation(restaurant,predRating):
     [restaurantName,address,business['review_count'],business['stars'],predRating,delivery,grubhub]])
     print(table.draw())
     print()
-    # add covid information here as well
-    table = texttable.Texttable()
+
+    table = texttable.Texttable() # normal opening hours table
     table.set_deco(texttable.Texttable.HEADER)
     table.set_cols_dtype(['t','t'])
     table.set_cols_align(['l','l'])
@@ -139,7 +119,8 @@ def moreInformation(restaurant,predRating):
             rows.append([day,times])
         table.add_rows(rows)
         print(table.draw())
-    if closed != 'FALSE':
+
+    if closed != 'FALSE': # extra covid data, if present for particular restaurant
         print()
         print('{} is/was closed temporarily until {}\n'.format(restaurantName,closed.split('T')[0]))
     if message != 'FALSE' and message != '':
@@ -166,7 +147,7 @@ How many stars do you want to give {}? (1-5)
                     try:
                         stars = int(stars)
                         if 1 <= stars <= 5:
-                            reviews = open('processed/reviews.csv','a')
+                            reviews = open('processed/reviews.csv','a') # add new rating to reviews file
                             reviews.write('{},{},{}\n'.format(uid,restaurant,stars))
                             reviews.close()
                             break
@@ -182,7 +163,7 @@ How many stars do you want to give {}? (1-5)
         except:
             pass
 
-def info():
+def info(): # explain how the system works, for transparency and explainability
     print('''
 Which data do we collect from you?
 
@@ -203,7 +184,7 @@ For what purpose?
     input('Press enter to return to main menu ')
 
 
-def menu():
+def menu(): # main menu
     print('''
 
 ***** Main Menu *****
@@ -233,7 +214,7 @@ q. Quit
 def welcome():
     print('Welcome to the hybrid recommender system using the Yelp dataset!\n')
 
-def whichCity():
+def whichCity(): # 10 cities included in dataset
     cities = ['Montreal','Calgary','Toronto','Pittsburgh','Charlotte',
     'Urbana-Champaign','Phoenix','Las Vegas','Madison','Cleveland']
     question = '''
@@ -255,7 +236,7 @@ Which city are you closest to, {}?
             pass
     return cities[choice-1]
 
-def getCategory():
+def getCategory(): # 12 most popular cuisines from dataset
     categories = ['American', 'Mexican', 'Italian', 'Chinese', 'Seafood', 'Japanese', 
     'Canadian', 'Mediterranean', 'Indian', 'Thai', 'Middle Eastern', 'Vietnamese']
     question = '''
@@ -277,7 +258,7 @@ What type of food are you looking for, {}?
             pass
     return categories[choice-1]
 
-def getID():
+def getID(): # validate the user ID
     count = 0
     ID = ''
     while ID == '':
@@ -313,7 +294,7 @@ if __name__ == '__main__':
         restaurant,predRating = presentRecommendations(items)
         moreInfo = moreInformation(restaurant,predRating)
     
-    while True:
+    while True: # after first run-through, present main menu and let user change options and investigate system
         choice = menu()
         if choice == 1:
             uid, name = getID()

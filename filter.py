@@ -344,4 +344,4 @@ def getNumberRestaurants():
 #formatCovidFeatures()
 #closedCovid()
 #getDemoIDs()
-getNumberRestaurants()
+#getNumberRestaurants()
