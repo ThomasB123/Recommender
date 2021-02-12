@@ -1,48 +1,35 @@
 
-# you must compare the other systems using evaluation metrics but actual performance of recommender system is not important
-
-# video is about how well you can present your product. Voice over video
-# explain what it is, how it works, display the best of its features, demo main functionality
-# like a little sales pitch
-
-# when reviewing papers, look at:
-#   RS technique/type
-#   model
-#   evaluation methods used
-#   limitations
-# in order to get an idea of common or good or useful combinations of systems
-
-# restaurants
+# Restaurants
+# knowledge-based and collaborative-filtering in cascade style
 
 import json
+import texttable
 from surprise import SVD
 from surprise import Dataset
 from surprise import Reader
-import texttable
-import pandas as pd
-from surprise import BaselineOnly
-from surprise.model_selection import cross_validate
-from surprise.model_selection import train_test_split
-from surprise import accuracy
+#from surprise import BaselineOnly # testing import
+#from surprise.model_selection import cross_validate # testing import
+#from surprise.model_selection import train_test_split # testing import
+#from surprise import accuracy # testing import
 
-def getRecommendations(uid): # 
-    file_path = 'processed/reviews.csv'
-    reader = Reader(line_format='user item rating', sep=',')
+def getRecommendations(uid): # hybrid recommender
+    file_path = 'processed/reviews.csv' # path to ratings file
+    reader = Reader(line_format='user item rating', sep=',') # specify line order of CSV file
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True) # base line comparison
     #cross_validate(SVD(),data, verbose=True)
     #algo = BaselineOnly()
     #trainset,testset = train_test_split(data, test_size=.25) # for evaluation purposes
-    algo = SVD()
+    algo = SVD() # Single Value Decomposition
     print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
-    trainset = data.build_full_trainset()
-    algo.fit(trainset)
+    trainset = data.build_full_trainset() # training data
+    algo.fit(trainset) # create model
     suggestions = {}
-    for iid in iids:
-        if iid in businesses and category in businesses[iid]['categories']: # knowledge based filtering
+    for iid in iids: # iid is business ID
+        if iid in businesses and category in businesses[iid]['categories']: # knowledge based filtering, only predict items recommended by KB system
             pred = algo.predict(uid,iid) # predict what user uid will rate item iid
             suggestions[pred[1]] = pred[3] # collaborative filtering
-    suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True)
+    suggestions = sorted(suggestions.items(), key=lambda item: item[1],reverse=True) # sort by predicted score
     return suggestions[:8] # present top 8 restaurants
 
 def presentRecommendations(items): # takes items from recommender and displays them in an appealing way

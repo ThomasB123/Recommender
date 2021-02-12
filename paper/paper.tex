@@ -13,7 +13,7 @@
 
 \author{\IEEEauthorblockN{lrfk99}
 \IEEEauthorblockA{\textit{dept. Computer Science} \\
-\textit{Durham University}\\
+\textit{Durham University} \\
 Durham, United Kingdom}
 }
 
@@ -29,14 +29,12 @@ type of food.
 
 \subsection{Related work review}
 Hybrid recommender systems which combine knowledge-based (KB) and collaborative-filtering (CF) techniques 
-are designed to combine the ability of KB techniques to give generic recommendations to new users with 
-small profiles and the strength of CF to find peer users with unexpected shared preferences. 
-This combination of techniques is particularly well suited to restaurants since a user may often be in the 
-mood for a specific type of food, such as Italian or Chinese, so they only want to see suggestions of that 
-type or restaurant, which is where the knowledge-based recommender is helpful. 
-A collaborative-filtering algorithm will then be able to order all the restaurants which match this 
-explicit criteria by how the user should rate them, based on the opinions of other similar users, 
-helping them to discover new restaurants to try. 
+are designed to combine the ability of KB techniques to give appropriate recommendations to new users with 
+the ability of CF to find peer users with unexpected shared preferences. 
+This is appropriate for restaurants since a user may be in the mood for a specific cuisine and only want to see 
+suggestions relevant to that, which is where the KB system comes in. 
+The CF algorithm will then be able to sort these restaurants provided by the KB system by their predicted 
+rating by the user, based on the opinions of other similar users, helping them to discover new restaurants to try. 
 These techniques are used in the Entree restaurant recommender system \cite{burke1999integrating,burke2000knowledge,burke2002hybrid,burke2007hybrid}. 
 In particular, Burke's 1999 paper \cite{burke1999integrating} is the first to discuss specifically using these 
 two techniques in the same cascaded style that I implement here. 
@@ -56,51 +54,31 @@ affect future suggestions the system gives for that user and other similar users
 \subsection{Data description}
 The data for my recommender system was generated from the Yelp Open Dataset \cite{YelpDataset}. 
 This is a subset of all the businesses, reviews, and user data on Yelp, formatted as JSON files. 
-The dataset includes approximately 8,000,000 reviews of 200,000 businesses by 2,000,000 users, as well as 
-additional Covid-19 related features of each business such as whether they now offer takeout or delivery. 
-There are 3 sections of the dataset, with 5 JSON files in the main dataset, 1 in the photos section, and 
-1 in the covid section. 
 The $business.json$ file contains business data including location data, attributes, and cuisine. 
-$review.json$ contains full review text data including the $user\_id$ that wrote the review and the $business\_id$ 
-that the review is written for. 
-The file $user.json$ holds every user's first name along with other data and metadata which I don't use \cite{YelpDataset}. 
-The data files $checkin.json$ and $tip.json$ are not used in my system. 
-The dataset also includes approximately 200,000 photos but these are not relevant to my application, since 
-the interface is command line only, so they were discarded. 
+$review.json$ contains full review text data including the $user\_id$ of the review and the $business\_id$ 
+that the review is for. 
+The file $user.json$ holds every user's first name along with other data and metadata which I don't 
+require \cite{YelpDataset}. 
+The data files $checkin.json$, $tip.json$, and $photos.json$ are not used in my system. 
 The covid related data from $covid\_features.json$ contains additional information about each business with regards to 
 the measures they have taken due to the pandemic, such as offering delivery or takeout options or a 
 special message for customers. 
-Every business in the dataset is in 1 of 10 metropolitan areas in the USA and Canada 
-(Montreal, Calgary, Toronto, Pittsburgh, Charlotte, Urbana-Champaign, Phoenix, Las Vegas, Madison, and Cleveland) \cite{YelpDataset}. 
+Every business in the dataset is in 1 of 10 metropolitan areas in the USA and Canada \cite{YelpDataset}. 
 
 \subsection{Data preparation and feature selection}
-The entire Yelp dataset contains a lot of data which is not relevant to my domain of restaurants, so much data 
-preparation is required to save computation time and in order to provide more accurate predictions. 
 The dataset is provided in JSON format, but in such a way that every entry is its own JSON on its own line, 
 which does not lend well to fast lookups by the main program. 
-Therefore it was necessary to convert every file I used in the system into a typical JSON file, such that it could 
-be loaded as a python dictionary with the lookup key being either the uniquely identifying $business\_id$ or 
-$user\_id$ depending on the case. 
-This allows for extremely fast data lookups in the system. 
-It was of course also necessary to filter the list of all Yelp businesses down to just the restaurants. 
-I further narrowed the list of restaurants by selecting only those which fit into one or more of the top 12 
-cuisines in terms of number of restaurants (American, Mexican, Italian, Chinese, Seafood, Japanese, Canadian, 
-Mediterranean, Indian, Thai, Middle Eastern, Vietnamese, in that order). 
-Since the user selects one of these 12 options for cuisines they want to find, they will 
-never be recommended a restaurant which doesn't fit at least one of these categories. 
-I chose to use the top 12 cuisines because it's enough to provide a wide variety of options to the user without 
-being so many that the user is overwhelmed by the amount. 
-I also ensured that every restaurant was still open and had at least 1 check-in in 2019 (the last year that 
-data was available). 
+So I converted every file I used in the system into a typical JSON file, allowing for extremely fast 
+data lookups in the system. 
+I filtered the list of all Yelp businesses to restaurants and then further by selecting only those which were still 
+open and fit into one or more of the top 12 cuisines in terms of number of restaurants because it's enough to provide 
+a wide variety of options to the user without being so many that the user is overwhelmed. 
 This left 20,565 restaurants which could be recommended to the user, which needed to be split into their respective 
-metropolitan areas by using the latitude and longitude values of the businesses and of the centres of each city. 
-All other datasets were filtered to only data pertaining to these restaurants, with duplicates in the 
-covid dataset removed. 
-The reviews were further filtered to only those which had 5 or more 'useful' votes by other users. 
-This was to ensure I was only using high quality reviews which others found helpful, as well as to allow the 
-recommender system to compute results in a reasonable amount of time (~10 seconds on my machine). 
-This left around 120,000 reviews, which were then converted to a CSV file ($reviews.csv$) with unnecessary data 
-removed and structured as follows: ($User\_ID$, $Business\_ID$, $Rating$). 
+metropolitan areas. 
+The reviews were further filtered to only those which had 5 or more 'useful' votes by other users, 
+to ensure I was only using high quality reviews which others found helpful. 
+This left around 120,000 reviews, which were then converted to a CSV file ($reviews.csv$) and structured as 
+follows: ($User\_ID$, $Business\_ID$, $Rating$). 
 
 \subsection{Hybrid scheme}
 The two personalised recommender systems I implement are knowledge-based and collaborative-filtering, and 
@@ -124,8 +102,7 @@ This approach completely eliminates the cold-start problem, a new user will stil
 for the city they are in and the type of food they in the mood for when using a KB system. 
 The second prediction method is a collaborative-filtering (CF) approach, specifically Single Value Decomposition (SVD) 
 matrix factorisation. 
-This approach was chosen because it scales well with large datasets, which is important since my dataset has 
-roughly 120,000 entries. 
+This approach was chosen because it scales well with large datasets. 
 The CF technique here also introduces an element of variability in the recommendations, such that the user 
 may not receive the same ordering of suggestions when they run the system multiple times with the same 
 KB specifications, helping the user to try new things. 
@@ -141,7 +118,6 @@ following equation:
 \end{equation}
 This metric is appropriate for this RS since it can handle large errors on a few items, which may occur in this system 
 due to some rare skewed ratings. 
-The MAE of this system is around 0.99. 
 
 Measuring the accuracy of usage predictions is done using precision, calculated by: 
 \begin{equation}
@@ -168,21 +144,16 @@ Generally the explainability of this system is quite high with regards to all fo
 \section{Implementation}
 
 \subsection{Input interface}
-The system has a command line based interface, so all user input is given via the command line. 
-The system recognises the active user by their unique user ID. 
-Some example IDs are provided in the 'README.txt' file for testing and demonstration purposes. 
-Only explicit user data is gathered in order to make the system more explainable and transparent, 
+The system has a command line interface, and recognises the active user by their unique user ID. 
+Some example IDs are provided for testing and demonstration purposes. 
+Only explicit user data is gathered, making the system more explainable and transparent, 
 and users are made aware of which data is collected, how it is collected, and for which purposes. 
 This data includes the user's nearest city (of the 10 available) and the type of food that 
 they are in the mood for. 
 The user is able to change these choices from the main menu, as well as switch to a different user 
 for testing purposes. 
 When the user is presented with a list of recommendations, they can then choose one that they want 
-to see more information about and from here they can leave a rating, return to the list, or return to 
-the main menu. 
-User profiles can be updated by giving a rating of a restaurant through the system. 
-Any rating given will affect future recommendations given by the system to that user 
-and to other similar users. 
+to see more information about and leave a rating, which will update their future recommendations. 
 
 \subsection{Recommendation algorithm}
 The collaborative-filtering aspect of the algorithm is carried out by first converting the ratings data to a 
@@ -192,33 +163,19 @@ The prediction $\widehat{r}_{ui}$ (user $u$'s rating of item $i$) is set as:
 \begin{equation}
     \widehat{r}_{ui} = \mu + b_u + b_i + q_i^Tp_u
 \end{equation}
-Where the parameters are learnt by minimising the following regularised squared error: 
+Where the parameters are learnt by minimising the following regularised squared error by stochastic gradient descent: 
 \begin{equation}
     \sum_{r_{ui}\in{R_{train}}} (r_{ui} - \widehat{r}_{ui})^2 + \lambda(b_i^2 + b_u^2 + ||q_i||^2 + ||p_u||^2)
 \end{equation}
-This minimisation is performed by stochastic gradient descent:
-\begin{align}
-    \begin{split}
-    & b_u \gets b_u + \gamma(e_{ui} - \lambda b_u) \\
-    & b_i \gets b_i + \gamma(e_{ui} - \lambda b_i) \\ 
-    & p_u \gets p_u + \gamma(e_{ui} \cdot q_i - \lambda p_u) \\ 
-    & q_i \gets q_i + \gamma(e_{ui} \cdot p_u - \lambda q_i) \\
-    \end{split}
-\end{align}
-where $e_{ui} = r_{ui} - \widehat{r}_{ui}$. 
-These steps are performed over all the ratings of the trainset and repeated 20 times \cite{SVD}. 
 The knowledge-based aspect of the algorithm produces recommendations based on the explicit location and cuisine 
 preferences of the user. 
 These are then cascaded down to the CF algorithm, which assigns each a predicted rating based on the ratings data. 
 The 8 recommendations with the highest predicted rating are then presented to the user. 
 
 \subsection{Output interface}
-Recommendations and prediction scores are presented to the user via the command line interface and using an ASCII table. 
-I used a python module called texttable for this, since it makes the output very clear and visually appealing. 
-I chose to output the top 8 recommendations since I think this is enough variety and choice for the user to find 
-a restaurant to try, without there being too many options which might overwhelm the user. 
-If I presented more than 8 recommendations at a time, the table wouldn't fit in a single terminal output window and 
-would require the user to scroll around to read different parts of the output. 
+Recommendations and prediction scores are presented to the user via the command line interface using an ASCII table. 
+The top 8 recommendations are output since this is enough variety for the user to find something new to try, 
+without being too overwhelming. 
 Since the user will be interacting with the system on a laptop or desktop computer through a command line interface, 
 an ASCII table is the most visually attractive way to present information, and the white text on a (typically) black 
 background will help accommodate users who are colourblind or who require a high-contrast interface. 
@@ -226,7 +183,7 @@ The interface is clear enough to understand that users of all ages are able to u
 requires the text to be larger then they can increase the text size of their terminal. 
 Along with the recommended restaurants, an explanation of how these results are calculated is also provided, as 
 well as the prediction values themselves so the user can understand why they are being shown these suggestions. 
-This, along with an option in the main menu to view information about the data the system uses and how it is used, 
+This, along with an option in the main menu to view information about the data the system collects and uses, 
 further adds to the explainability and transparency. 
 \begin{figure}
     \centering

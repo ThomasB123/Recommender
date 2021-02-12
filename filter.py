@@ -2,7 +2,6 @@
 import json
 import pandas as pd
 
-
 def getIDs():
     inFile = open('processed/2019business.json','r')
     outFile = open('processed/business_ids.json','w')
