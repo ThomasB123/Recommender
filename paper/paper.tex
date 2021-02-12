@@ -142,14 +142,28 @@ following equation:
 This metric is appropriate for this RS since it can handle large errors on a few items, which may occur in this system 
 due to some rare skewed ratings. 
 The MAE of this system is around 0.99. 
+
 Measuring the accuracy of usage predictions is done using precision, calculated by: 
 \begin{equation}
-    \frac{TP}{TP+FP}
+    Precision = \frac{TP}{TP+FP}
 \end{equation}
 where TP and FP correspond to True Positive and False Positive respectively. 
 This is because the number of recommendations is predefined and not very large (8 items). 
 The precision of this system is 0.125, since 1 out of the 8 items is a true positive. 
-Novelty, diversity, coverage
+
+Coverage of the system is calculated by:
+\begin{equation}
+    Prediction\ coverage = \frac{|I_p|}{|I|}
+\end{equation} 
+where $I_p$ is the set of restaurants which can be recommended and $I$ is the set of all restaurants. 
+In my system the coverage is ~0.32 ($\frac{20,565}{63,944}$), this is the most appropriate metric since 
+the data for previously views items does not exist, ruling out novelty and diversity metrics. 
+
+Explainability is measured holistically, by looking at the explanations given throughout the system and how 
+well they describe the purpose of the recommendations, how accurately they match the mechanisms used to 
+generate recommendations, how much they improve the system's transparency, and how they help users to make decisions 
+more efficiently and effectively. 
+Generally the explainability of this system is quite high with regards to all four of these criteria. 
 
 \section{Implementation}
 
@@ -216,7 +230,7 @@ This, along with an option in the main menu to view information about the data t
 further adds to the explainability and transparency. 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{output.png}
+    \includegraphics[width=0.4\linewidth]{output.png}
     \caption{System output}
     \label{fig:output}
 \end{figure}
@@ -245,19 +259,30 @@ user to specify this order themselves.
 This is part of the reason why Entree would outperform this system. 
 
 \subsection{Ethical issues}
-People's personal data
+One ethical issue resulting from data collection is whether people who use Yelp are aware that some of their 
+personal data is being made publicly available as part of a large dataset. 
+An approach to solve this issue would be an opt-in for whether a user wants to allow their data to be used in this way. 
+Another issue is a business which has received unfair negative reviews, my recommender system would be less likely to 
+suggest this restaurant to a user, causing the owner to unfairly lose business. 
+This can be solved by moderation of reviews and allowing business owners to appeal negative reviews. 
+A third issue arising from this system is that users now don't need to visit the Yelp website to find restaurant 
+recommendations, meaning that Yelp will lose ad-revenue due to reduced site-traffic. 
+Yelp could address this issue by introducing additional useful features to their website which are not available in 
+this system, such that users would want to visit Yelp.com for their recommendations. 
 
 
 \section{Conclusion}
 
 \subsection{Limitations}
-What can it not do?
+Currently the system cannot consider the user's preferences in terms of pricing of a restaurant, and it also does 
+not have precise location information, only the metropolitan area the user is in or near to. 
+This means that how central a restaurant is to the city centre currently has no impact on the recommendations. 
 
 \subsection{Further developments}
-What could I do in the future \cite{5284958}. 
-Implement the idea of particular cuisines being closer some than others. 
-Specify price range and/or consider price when comparing similarities of restaurants. 
-Include demographic information
+The system could be developed further by implementing the idea of particular cuisines being more similar 
+to some than others. 
+The user could also specify an acceptable price range that they are looking for, and the system could make 
+recommendations based on estimated or known demographic information of the user. 
 
 
 \bibliographystyle{IEEEtran}

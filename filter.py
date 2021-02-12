@@ -310,6 +310,18 @@ def getDemoIDs():
     print(sorted(uids.items(), key=lambda item: item[1]))
     print(len(uids))
 
+def getNumberRestaurants():
+    inFile = open('dataset/business.json','r')
+    count = 0
+    for line in inFile:
+        business = json.loads(line)
+        ID = business['business_id']
+        busCategories = business['categories']
+        if busCategories != None and 'Restaurants' in busCategories:
+            count += 1
+    inFile.close()
+    print(count)
+
 #ids = getIDs()
 #filterRelevant()
 #lastCheckin()
@@ -332,3 +344,4 @@ def getDemoIDs():
 #formatCovidFeatures()
 #closedCovid()
 #getDemoIDs()
+getNumberRestaurants()
