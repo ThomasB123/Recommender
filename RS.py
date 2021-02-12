@@ -30,10 +30,10 @@ def getRecommendations(uid): #
     reader = Reader(line_format='user item rating', sep=',')
     data = Dataset.load_from_file(file_path, reader=reader)
     #cross_validate(BaselineOnly(), data, verbose=True) # base line comparison
+    #cross_validate(SVD(),data, verbose=True)
     #algo = BaselineOnly()
     #trainset = data.build_full_trainset()
     #trainset,testset = train_test_split(data, test_size=.25) # for evaluation purposes
-    cross_validate(algo,data,measures=['RMSE','MAE'], cv=5, verbose=True)
     algo = SVD()
     print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
     algo.fit(trainset)
