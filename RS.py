@@ -32,10 +32,10 @@ def getRecommendations(uid): #
     #cross_validate(BaselineOnly(), data, verbose=True) # base line comparison
     #cross_validate(SVD(),data, verbose=True)
     #algo = BaselineOnly()
-    #trainset = data.build_full_trainset()
     #trainset,testset = train_test_split(data, test_size=.25) # for evaluation purposes
     algo = SVD()
     print('Getting recommendations for {} of {} restaurants in {}...'.format(name,category,city))
+    trainset = data.build_full_trainset()
     algo.fit(trainset)
     suggestions = {}
     for iid in iids:
